@@ -1,0 +1,27 @@
+{
+  "name": "Overtime Tracker — SHARP WM",
+  "short_name": "OT Tracker",
+  "description": "Kalkulasi lembur & THP berbasis PKB SHARP Indonesia",
+  "start_url": "./overtime-tracker.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#111112",
+  "theme_color": "#C8001E",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "id"
+}
