@@ -37,6 +37,27 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;padding-bo
 .pg{display:none}.pg.on{display:block;animation:fi .18s ease}
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .ptit{font-size:20px;font-weight:600;color:var(--ink)}.psub{font-size:13px;color:var(--ink3);margin-top:3px;margin-bottom:18px}
+/* PAGE HEADERS */
+.pg-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.pg-hd-left{flex:1;min-width:0}
+.pg-hd-left .ptit{margin-bottom:0}
+.pg-hd-left .psub{margin-bottom:0;margin-top:3px}
+.pg-hd-left .d-chips{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.jam-box{flex-shrink:0;text-align:right;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 16px;box-shadow:var(--sh);min-width:96px}
+.jam-box-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--ink);line-height:1;letter-spacing:-1px}
+.jam-box-lbl{font-size:10px;color:var(--ink3);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.jam-box-sub{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ink2);margin-top:6px;padding-top:6px;border-top:1px solid var(--bdr);line-height:1}
+.jam-box-sub2{font-size:10px;color:var(--ink4);margin-top:2px}
+/* STAT CHIPS (calendar stats bar) */
+.stat-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;padding-bottom:13px;border-bottom:1px solid var(--bdr)}
+.stat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;font-size:12px;color:var(--ink2)}
+.stat-chip .sv{font-family:'DM Mono',monospace;font-weight:500;color:var(--ink)}
+.stat-chip.red{background:var(--redp);border-color:rgba(200,0,30,.2)}.stat-chip.red .sv{color:var(--red)}
+.stat-chip.grn{background:var(--grnp);border-color:rgba(15,123,60,.2)}.stat-chip.grn .sv{color:var(--grn)}
+.stat-chip.pur{background:var(--purp);border-color:rgba(99,102,241,.2)}.stat-chip.pur .sv{color:var(--pur)}
+/* D CHIPS (period tags in dashboard header) */
+.d-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;font-size:11px;color:var(--ink3)}
+.d-chip strong{color:var(--ink2);font-weight:500}
 .card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh)}.card+.card{margin-top:12px}.cb{padding:16px}
 .hero{background:var(--ink);border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--red);border-radius:50%;opacity:.07}
@@ -190,7 +211,19 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
 
 <!-- DASHBOARD -->
 <div class="pg on" id="pgd">
-  <div class="ptit">Ringkasan THP</div><div class="psub" id="dsub">Memuat periode...</div>
+  <div class="pg-hd">
+    <div class="pg-hd-left">
+      <div class="ptit">Ringkasan THP</div>
+      <div id="dsub" style="font-size:12px;color:var(--ink3);margin-top:4px">Memuat periode...</div>
+      <div id="d-chips" style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap"></div>
+    </div>
+    <div class="jam-box">
+      <div class="jam-box-num" id="d-jam-num">0</div>
+      <div class="jam-box-lbl">jam lembur</div>
+      <div class="jam-box-sub" id="d-hari-sub">0 hari</div>
+      <div class="jam-box-sub2">periode ini</div>
+    </div>
+  </div>
   <div class="hero"><div class="hlbl">Estimasi Take Home Pay</div><div class="hamt" id="hamt">Rp 0</div><div class="hbd" id="hbd"></div></div>
   <div class="g6" id="scards"></div>
   <div class="attbar">
@@ -203,10 +236,21 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
 
 <!-- KALENDER -->
 <div class="pg" id="pgk">
-  <div class="ptit">Input Harian</div>
-  <div class="psub">Klik tanggal untuk absen, lembur, TKM &amp; catatan</div>
+  <div class="pg-hd">
+    <div class="pg-hd-left">
+      <div class="ptit">Input Harian</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:4px">Klik tanggal untuk absen, lembur, TKM &amp; catatan</div>
+    </div>
+    <div class="jam-box">
+      <div class="jam-box-num" id="k-jam-num">0</div>
+      <div class="jam-box-lbl">jam lembur</div>
+      <div class="jam-box-sub" id="k-hari-sub">0 hari</div>
+      <div class="jam-box-sub2">periode ini</div>
+    </div>
+  </div>
   <div class="card"><div class="cb">
     <div class="calnav"><button class="cbtn" onclick="prevM()">&#8592;</button><div class="calml" id="calml"></div><button class="cbtn" onclick="nextM()">&#8594;</button></div>
+    <div class="stat-bar" id="cal-stat-bar"></div>
     <div class="cgrid" id="calhd"></div>
     <div class="cgrid" style="margin-top:3px" id="calgrid"></div>
     <div class="calleg">
@@ -384,9 +428,29 @@ function render(){
   const per=s.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' – '+e.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 
   document.getElementById('tper').textContent=per;
-  document.getElementById('dsub').textContent='Periode: '+per;
+  document.getElementById('dsub').textContent=per;
   document.getElementById('hrlbl').textContent=rp(r);
   document.getElementById('hamt').textContent=rp(thp);
+
+  // Dashboard header stats
+  document.getElementById('d-jam-num').textContent=th;
+  document.getElementById('d-hari-sub').textContent=hadirCount+' hari hadir';
+  document.getElementById('d-chips').innerHTML=[
+    `<span class="d-chip"><strong>${otDays}</strong> hari lembur</span>`,
+    ...(tkmCount?[`<span class="d-chip"><strong>${tkmCount}</strong> shift TKM</span>`]:[]),
+    `<span class="d-chip"><strong>${rp(ot)}</strong> uang lembur</span>`,
+  ].join('');
+
+  // Calendar header stats (same data, always period-level)
+  const calStatHtml=[
+    `<span class="stat-chip red"><span class="sv">${th} jam</span> lembur</span>`,
+    `<span class="stat-chip grn"><span class="sv">${hadirCount} hari</span> hadir</span>`,
+    `<span class="stat-chip">${otDays} hari lembur</span>`,
+    ...(tkmCount?[`<span class="stat-chip pur"><span class="sv">${tkmCount}</span> TKM</span>`]:[]),
+  ].join('');
+  ['k-jam-num','d-jam-num'].forEach(id=>document.getElementById(id)&&(document.getElementById(id).textContent=th));
+  document.getElementById('k-hari-sub').textContent=hadirCount+' hari hadir';
+  const csb=document.getElementById('cal-stat-bar');if(csb)csb.innerHTML=calStatHtml;
 
   const bd=[
     {l:'Gaji Pokok',v:S.gajiPokok},
