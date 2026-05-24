@@ -14,16 +14,37 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#C8001E;--redd:#9B0017;--redp:#FFF1F3;--reddim:rgba(200,0,30,.12);--grn:#0F7B3C;--grnp:#F0FAF4;--blu:#2563EB;--blup:#EEF5FF;--pur:#6366F1;--purp:#EEF2FF;--ink:#111112;--ink2:#48484E;--ink3:#96969F;--ink4:#C4C4CA;--surf:#FAFAF9;--card:#FFF;--bdr:rgba(0,0,0,.07);--bdr2:rgba(0,0,0,.13);--r:10px;--rs:6px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shm:0 4px 12px rgba(0,0,0,.08)}
-[data-theme="dark"]{--ink:#E5E5E7;--ink2:#A1A1A9;--ink3:#6E6E73;--ink4:#48484A;--surf:#000000;--card:#1C1C1E;--bdr:rgba(255,255,255,.1);--bdr2:rgba(255,255,255,.18);--sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);--shm:0 4px 12px rgba(0,0,0,.4);--redp:#2D0A0D;--reddim:rgba(200,0,30,.25);--grnp:#0A1F13;--blup:#0A1829;--purp:#1A1A2E}
-[data-theme="dark"] .hero{background:#2C2C2E;border:1px solid rgba(255,255,255,.1)}
-[data-theme="dark"] .hero::before{opacity:.12}
-[data-theme="dark"] .top{background:#1C1C1E;border-bottom:1px solid rgba(255,255,255,.08)}
-[data-theme="dark"] .mark{background:var(--red);box-shadow:0 0 0 1px rgba(255,255,255,.1)}
-[data-theme="dark"] .hrbox{background:#2C2C2E;border-color:rgba(255,255,255,.12)}
-[data-theme="dark"] .bnav{background:#1C1C1E;border-top-color:rgba(255,255,255,.08)}
-[data-theme="dark"] .bnav .bni{color:rgba(255,255,255,.5)}
+[data-theme="dark"]{--ink:#EFEFEF;--ink2:#B5B5B9;--ink3:#86868B;--ink4:#5E5E62;--surf:#000000;--card:#1C1C1E;--bdr:rgba(255,255,255,.12);--bdr2:rgba(255,255,255,.2);--sh:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);--shm:0 4px 12px rgba(0,0,0,.5);--redp:#2D0A0D;--reddim:rgba(200,0,30,.3);--grnp:#0A1F13;--blup:#0A1829;--purp:#1A1A2E}
+[data-theme="dark"] .hero{background:#2C2C2E;border:1px solid rgba(255,255,255,.15)}
+[data-theme="dark"] .hero::before{opacity:.15}
+[data-theme="dark"] .top{background:#1C1C1E;border-bottom:1px solid rgba(255,255,255,.12)}
+[data-theme="dark"] .mark{background:var(--red);box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+[data-theme="dark"] .hrbox{background:#2C2C2E;border:1px solid rgba(255,255,255,.15)}
+[data-theme="dark"] .hrbox-lbl{color:rgba(255,255,255,.6)}
+[data-theme="dark"] .hrbox-val{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .bnav{background:#1C1C1E;border-top-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .bnav .bni{color:rgba(255,255,255,.6)}
 [data-theme="dark"] .bnav .bni.on{color:#fff}
-[data-theme="dark"] .side-ft{border-top-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .side-ft{border-top-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .rprev{background:#2C2C2E;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.85)}
+[data-theme="dark"] .stat{background:#2C2C2E;border-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .stat-val{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .stat-lbl{color:rgba(255,255,255,.55)}
+[data-theme="dark"] .fi{background:#2C2C2E;border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.95)}
+[data-theme="dark"] .fi::placeholder{color:rgba(255,255,255,.35)}
+[data-theme="dark"] select.fi{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .sim-result{background:#2C2C2E;border-color:rgba(255,255,255,.15)}
+[data-theme="dark"] .ltbl th{background:#2C2C2E;color:rgba(255,255,255,.7)}
+[data-theme="dark"] .ltbl td{border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .cal-day{border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .cal-day:hover{background:rgba(255,255,255,.05)}
+[data-theme="dark"] .modal-box{background:#1C1C1E}
+[data-theme="dark"] .modal-hd{border-bottom-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .slip-detail-per{background:#2C2C2E;color:rgba(255,255,255,.85)}
+[data-theme="dark"] .slip-sec-title{border-bottom-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .slip-row{border-top-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .reminder{background:linear-gradient(135deg,#3D2A0F,#4D3A1F);border-bottom-color:#92400E}
+[data-theme="dark"] .reminder-txt{color:#FDE68A}
 /* REMINDER BANNER */
 .reminder{position:sticky;top:54px;z-index:90;background:linear-gradient(135deg,#FFF7E6,#FED7AA);border-bottom:1px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideDown .3s ease}
 @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
