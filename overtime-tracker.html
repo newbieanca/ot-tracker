@@ -8,10 +8,40 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="apple-mobile-web-app-title" content="OT Tracker"/>
 <title>Overtime Tracker — SHARP WM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <link rel="manifest" href="manifest.json"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#C8001E;--redd:#9B0017;--redp:#FFF1F3;--reddim:rgba(200,0,30,.12);--grn:#0F7B3C;--grnp:#F0FAF4;--blu:#2563EB;--blup:#EEF5FF;--pur:#6366F1;--purp:#EEF2FF;--ink:#111112;--ink2:#48484E;--ink3:#96969F;--ink4:#C4C4CA;--surf:#FAFAF9;--card:#FFF;--bdr:rgba(0,0,0,.07);--bdr2:rgba(0,0,0,.13);--r:10px;--rs:6px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shm:0 4px 12px rgba(0,0,0,.08)}
+[data-theme="dark"]{--ink:#E5E5E7;--ink2:#A1A1A9;--ink3:#6E6E73;--ink4:#48484A;--surf:#000000;--card:#1C1C1E;--bdr:rgba(255,255,255,.1);--bdr2:rgba(255,255,255,.18);--sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);--shm:0 4px 12px rgba(0,0,0,.4);--redp:#2D0A0D;--reddim:rgba(200,0,30,.25);--grnp:#0A1F13;--blup:#0A1829;--purp:#1A1A2E}
+[data-theme="dark"] .hero{background:#2C2C2E;border:1px solid rgba(255,255,255,.1)}
+[data-theme="dark"] .hero::before{opacity:.12}
+[data-theme="dark"] .top{background:#1C1C1E;border-bottom:1px solid rgba(255,255,255,.08)}
+[data-theme="dark"] .mark{background:var(--red);box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+[data-theme="dark"] .hrbox{background:#2C2C2E;border-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .bnav{background:#1C1C1E;border-top-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .bnav .bni{color:rgba(255,255,255,.5)}
+[data-theme="dark"] .bnav .bni.on{color:#fff}
+[data-theme="dark"] .side-ft{border-top-color:rgba(255,255,255,.08)}
+/* REMINDER BANNER */
+.reminder{position:sticky;top:54px;z-index:90;background:linear-gradient(135deg,#FFF7E6,#FED7AA);border-bottom:1px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
+[data-theme="dark"] .reminder{background:linear-gradient(135deg,#2D1F0A,#3D2A0F);border-bottom-color:#92400E}
+.reminder-txt{font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px}
+[data-theme="dark"] .reminder-txt{color:#FDE68A}
+.reminder-btns{display:flex;gap:6px;flex-shrink:0}
+/* SIMULATION WIDGET */
+.sim-widget{background:linear-gradient(135deg,var(--blup),var(--purp));border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.sim-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sim-result{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px}
+.sim-result-lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.sim-result-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--ink)}
+.sim-result.grn .sim-result-val{color:var(--grn)}
+@media(max-width:600px){.sim-grid{grid-template-columns:1fr}}
+/* BACKUP BUTTONS */
+.backup-btns{display:flex;gap:8px;flex-wrap:wrap}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased;background:var(--surf);color:var(--ink)}
 body{font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
@@ -58,7 +88,18 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;padding-bo
 /* D CHIPS (period tags in dashboard header) */
 .d-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;font-size:11px;color:var(--ink3)}
 .d-chip strong{color:var(--ink2);font-weight:500}
-.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh)}.card+.card{margin-top:12px}.cb{padding:16px}
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--pur),var(--blu));opacity:.4}
+.card+.card{margin-top:12px}.cb{padding:16px}
+/* COLLAPSIBLE SECTIONS */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;cursor:pointer;user-select:none;padding:4px 0;border-radius:4px;transition:background .15s}
+.sec-hd:hover{background:var(--surf)}
+.sect{font-size:11px;font-weight:500;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.collapse-icon{width:14px;height:14px;stroke:var(--ink3);transition:transform .2s;flex-shrink:0}
+.collapse-icon.collapsed{transform:rotate(-90deg)}
+.collapsible-content{overflow:hidden;transition:max-height .3s ease,opacity .3s ease}
+.collapsible-content.collapsed{max-height:0!important;opacity:0}
 .hero{background:var(--ink);border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--red);border-radius:50%;opacity:.07}
 .hlbl{font-size:10px;color:rgba(255,255,255,.38);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
@@ -233,6 +274,18 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
   </div>
 </header>
 
+<!-- REMINDER BANNER (shown if period expired and not saved) -->
+<div class="reminder" id="reminder-banner" style="display:none">
+  <div class="reminder-txt">
+    <span style="font-size:18px">⏰</span>
+    <span><strong>Periode lalu sudah berakhir.</strong> Simpan slip gaji sekarang agar data tidak hilang?</span>
+  </div>
+  <div class="reminder-btns">
+    <button class="bp" onclick="saveFromReminder()" style="font-size:12px;padding:6px 12px">Simpan Sekarang</button>
+    <button class="bg" onclick="dismissReminder()" style="font-size:12px;padding:6px 12px">Nanti Saja</button>
+  </div>
+</div>
+
 <nav class="side">
   <div style="padding:0 8px">
     <div class="nav-lbl" style="padding:0 12px;margin-bottom:5px">Menu</div>
@@ -277,8 +330,58 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
     <div><div style="font-weight:500;font-size:14px">Tunjangan Kehadiran</div><div style="font-size:12px;color:var(--ink3);margin-top:1px">Rp 135.000 — centang jika tidak ada absensi bulan ini</div></div>
     <button class="tog" id="atog" onclick="togAtt()"><span></span></button>
   </div>
-  <div class="card"><div class="cb"><div class="sechd"><div class="sect">Log Harian Periode Ini</div><div id="lchip"></div></div><div id="ltbl"></div></div></div>
-  <div class="card"><div class="cb"><div class="sechd"><div class="sect">Catatan &amp; Reminder</div><div id="ncnt" style="font-size:11px;color:var(--ink3)"></div></div><div id="nbody"></div></div></div>
+  <div class="card"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('log-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="log-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Log Harian Periode Ini
+      </div>
+      <div id="lchip"></div>
+    </div>
+    <div class="collapsible-content" id="log-section" style="max-height:2000px"><div id="ltbl"></div></div>
+  </div></div>
+  <div class="card"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('notes-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="notes-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Catatan &amp; Reminder
+      </div>
+      <div id="ncnt" style="font-size:11px;color:var(--ink3)"></div>
+    </div>
+    <div class="collapsible-content" id="notes-section" style="max-height:2000px"><div id="nbody"></div></div>
+  </div></div>
+  
+  <!-- SIMULASI LEMBUR (moved to bottom) -->
+  <div class="sim-widget">
+    <div class="sim-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Simulasi Lembur — Hitung Tambahan THP
+    </div>
+    <div class="sim-grid">
+      <div class="fg">
+        <label class="fl">Tambah Jam Lembur</label>
+        <input type="number" class="fi" id="sim-jam" min="0" max="16" value="0" oninput="updateSim()" placeholder="0"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Tipe Hari</label>
+        <select class="fi" id="sim-type" onchange="updateSim()" style="font-family:'DM Sans',sans-serif">
+          <option value="kerja">Hari Kerja (2-4×)</option>
+          <option value="libur">Hari Libur (2-4×)</option>
+          <option value="raya">Hari Raya (3-5×)</option>
+        </select>
+      </div>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-result grn">
+        <div class="sim-result-lbl">Tambahan Uang Lembur</div>
+        <div class="sim-result-val" id="sim-add">Rp 0</div>
+      </div>
+      <div class="sim-result">
+        <div class="sim-result-lbl">THP Proyeksi Baru</div>
+        <div class="sim-result-val" id="sim-new">Rp 0</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- KALENDER -->
@@ -352,6 +455,39 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
     <div class="rprev" id="rprev"></div>
   </div></div>
 
+  <div class="card" style="margin-bottom:12px"><div class="cb">
+    <div class="stit">Tampilan &amp; Data</div>
+    
+    <!-- Dark Mode -->
+    <div class="attbar" style="margin-bottom:16px">
+      <div>
+        <div style="font-weight:500;font-size:14px">Mode Gelap (Dark Mode)</div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:1px">Hemat baterai untuk shift malam</div>
+      </div>
+      <button class="tog" id="dark-tog" onclick="toggleDark()"><span></span></button>
+    </div>
+
+    <!-- Backup/Restore -->
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:8px">Backup &amp; Restore Data</div>
+      <div class="backup-btns">
+        <button class="bp" onclick="exportData()" style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Data JSON
+        </button>
+        <button class="bg" onclick="document.getElementById('import-file').click()" style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import Data JSON
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+      </div>
+      <div class="pp" style="margin-top:9px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span style="font-size:11px;line-height:1.5">Export untuk backup data ke file. Import untuk restore atau pindah data ke HP lain. Data yang di-import akan <strong>menimpa</strong> data saat ini.</span>
+      </div>
+    </div>
+  </div></div>
+
   <div class="card"><div class="cb">
     <div class="stit">Referensi Pengali Lembur (PKB Pasal 23)</div>
     <table class="mt"><thead><tr><th>Tipe Hari</th><th>Jam 1–7</th><th>Jam 8</th><th>Jam 9+</th><th>Keterangan</th></tr></thead>
@@ -375,6 +511,21 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
       Simpan Periode
     </button>
   </div>
+  
+  <!-- TREND CHART -->
+  <div class="card" id="chart-card" style="display:none"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('chart-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Grafik Tren Lembur &amp; THP
+      </div>
+      <div style="font-size:11px;color:var(--ink3)">Perbandingan antar periode</div>
+    </div>
+    <div class="collapsible-content" id="chart-section" style="max-height:2000px">
+      <canvas id="trend-chart" style="max-height:320px"></canvas>
+    </div>
+  </div></div>
+  
   <div class="card"><div class="cb">
     <div class="sechd"><div class="sect">Riwayat Slip</div><div id="slip-count" style="font-size:11px;color:var(--ink3)"></div></div>
     <div id="slip-list"></div>
@@ -390,6 +541,10 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
     <div class="modal-hd">
       <div class="modal-title" id="modal-title">Detail Slip</div>
       <div style="display:flex;gap:8px">
+        <button class="bp no-print" onclick="exportSlipExcel()" style="padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 1-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Excel
+        </button>
         <button class="bg no-print" onclick="printSlip()" style="padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:5px">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Cetak
@@ -433,11 +588,12 @@ let S={
   uMakan:15000, uTransport:15000, uTKM:0,
   pot:[], logs:{},
   savedPeriods:[],
+  darkMode:false, dismissedPeriods:[], collapsed:{},
   vy:NOW.getFullYear(), vm:NOW.getMonth(), sel:null
 };
 
-function save(){try{localStorage.setItem('ot5',JSON.stringify({gajiPokok:S.gajiPokok,tunJab:S.tunJab,tunKel:S.tunKel,ps:S.ps,pe:S.pe,att:S.att,uMakan:S.uMakan,uTransport:S.uTransport,uTKM:S.uTKM,pot:S.pot,logs:S.logs,savedPeriods:S.savedPeriods}));}catch(e){}}
-function load(){try{const d=localStorage.getItem('ot5');if(d){const p=JSON.parse(d);Object.assign(S,p);if(!S.savedPeriods)S.savedPeriods=[];}}catch(e){}}
+function save(){try{localStorage.setItem('ot5',JSON.stringify({gajiPokok:S.gajiPokok,tunJab:S.tunJab,tunKel:S.tunKel,ps:S.ps,pe:S.pe,att:S.att,uMakan:S.uMakan,uTransport:S.uTransport,uTKM:S.uTKM,pot:S.pot,logs:S.logs,savedPeriods:S.savedPeriods,darkMode:S.darkMode,dismissedPeriods:S.dismissedPeriods,collapsed:S.collapsed}));}catch(e){}}
+function load(){try{const d=localStorage.getItem('ot5');if(d){const p=JSON.parse(d);Object.assign(S,p);if(!S.savedPeriods)S.savedPeriods=[];if(!S.dismissedPeriods)S.dismissedPeriods=[];if(!S.collapsed)S.collapsed={};}}catch(e){}}
 
 const fmt=n=>new Intl.NumberFormat('id-ID').format(Math.round(n));
 const rp=n=>'Rp '+fmt(n);
@@ -561,7 +717,7 @@ function render(){
   document.getElementById('scards').innerHTML=stats.map(s=>`<div class="sc${s.ra?' ra':s.ga?' ga':s.pa?' pa':''}"><div class="scl">${s.l}</div><div class="scv">${s.v}</div><div class="scs">${s.s}</div></div>`).join('');
 
   document.getElementById('atog').className='tog'+(S.att?' on':'');
-  renderLog();renderNotes();renderCal();renderSetUI();
+  renderLog();renderNotes();renderCal();renderSetUI();updateSim();
 }
 
 function renderLog(){
@@ -917,6 +1073,7 @@ function renderSlips(){
   if(sc)sc.textContent=S.savedPeriods.length?S.savedPeriods.length+' slip':'';
   if(!S.savedPeriods.length){
     sl.innerHTML=`<div class="emp"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Belum ada slip tersimpan.<br><small style="color:var(--ink4)">Klik "Simpan Periode" untuk menyimpan data saat ini.</small></div>`;
+    renderChart();
     return;
   }
   sl.innerHTML=S.savedPeriods.map(p=>`
@@ -932,10 +1089,12 @@ function renderSlips(){
         <button class="delbtn" onclick="event.stopPropagation();delSlip('${p.id}')" title="Hapus slip">✕</button>
       </div>
     </div>`).join('');
+  renderChart();
 }
 
 function viewSlip(id){
   const p=S.savedPeriods.find(x=>x.id===id);if(!p)return;
+  _currentSlip=p; // Store for Excel export
   const potTotal=p.pot.reduce((a,x)=>a+(Number(x.jumlah)||0),0);
   document.getElementById('modal-title').textContent='Slip Gaji — '+p.label;
   document.getElementById('modal-body').innerHTML=`
@@ -978,6 +1137,257 @@ function printSlip(){window.print()}
 function closeSlipModal(e){if(!e||e.target===document.getElementById('slip-modal'))document.getElementById('slip-modal').style.display='none'}
 function delSlip(id){if(confirm('Hapus slip ini?')){S.savedPeriods=S.savedPeriods.filter(p=>p.id!==id);save();renderSlips();}}
 
+/* ===== TREND CHART ===== */
+let trendChart=null;
+function renderChart(){
+  const card=document.getElementById('chart-card');
+  if(S.savedPeriods.length<2){
+    if(card)card.style.display='none';
+    return;
+  }
+  if(card)card.style.display='block';
+  
+  const sorted=[...S.savedPeriods].sort((a,b)=>new Date(a.savedAt)-new Date(b.savedAt));
+  const labels=sorted.map(p=>p.label.split(' – ')[0].substring(0,10));
+  const jamData=sorted.map(p=>p.th);
+  const thpData=sorted.map(p=>p.thp);
+  
+  const ctx=document.getElementById('trend-chart');
+  if(!ctx)return;
+  
+  if(trendChart)trendChart.destroy();
+  
+  trendChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          label:'Jam Lembur',
+          data:jamData,
+          borderColor:'rgb(37,99,235)',
+          backgroundColor:'rgba(37,99,235,.1)',
+          yAxisID:'y',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Take Home Pay',
+          data:thpData,
+          borderColor:'rgb(200,0,30)',
+          backgroundColor:'rgba(200,0,30,.1)',
+          yAxisID:'y1',
+          tension:.3,
+          fill:true
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top',labels:{font:{family:"'DM Sans',sans-serif",size:11},padding:12}},
+        tooltip:{
+          backgroundColor:'rgba(0,0,0,.8)',
+          padding:10,
+          titleFont:{family:"'DM Sans',sans-serif",size:12},
+          bodyFont:{family:"'DM Mono',monospace",size:11},
+          callbacks:{
+            label:function(ctx){
+              let lbl=ctx.dataset.label||'';
+              if(lbl)lbl+=': ';
+              if(ctx.parsed.y!==null){
+                lbl+=ctx.datasetIndex===0?ctx.parsed.y+' jam':'Rp '+ctx.parsed.y.toLocaleString('id-ID');
+              }
+              return lbl;
+            }
+          }
+        }
+      },
+      scales:{
+        y:{
+          type:'linear',
+          display:true,
+          position:'left',
+          title:{display:true,text:'Jam Lembur',font:{family:"'DM Sans',sans-serif",size:11}},
+          grid:{color:'rgba(0,0,0,.05)'}
+        },
+        y1:{
+          type:'linear',
+          display:true,
+          position:'right',
+          title:{display:true,text:'THP (Rp)',font:{family:"'DM Sans',sans-serif",size:11}},
+          grid:{drawOnChartArea:false},
+          ticks:{callback:function(val){return 'Rp '+val.toLocaleString('id-ID')}}
+        }
+      }
+    }
+  });
+}
+
+/* ===== EXCEL EXPORT ===== */
+let _currentSlip=null;
+function exportSlipExcel(){
+  if(!_currentSlip)return;
+  const p=_currentSlip;
+  
+  const wb=XLSX.utils.book_new();
+  const wsData=[
+    ['SHARP Electronics Indonesia'],
+    ['Slip Gaji — Washing Machine Division'],
+    [p.label],
+    [''],
+    ['GAJI POKOK & TUNJANGAN',''],
+    ['Gaji Pokok',p.gajiPokok],
+    ['Tunjangan Jabatan',p.tunJab],
+    ['Tunjangan Keluarga',p.tunKel],
+  ];
+  
+  if(p.att)wsData.push(['Tunjangan Kehadiran',p.att]);
+  
+  wsData.push(['']);
+  wsData.push(['LEMBUR & INSENTIF','']);
+  wsData.push([`Uang Lembur (${p.th} jam · ${p.otDays} hari)`,p.ot]);
+  if(p.ins)wsData.push([`Insentif Hari Raya (${p.ray} hari)`,p.ins]);
+  
+  wsData.push(['']);
+  wsData.push([`TUNJANGAN HARIAN (${p.hadirCount} hari hadir)`,''  ]);
+  wsData.push([`Uang Makan (@ Rp ${p.uMakan.toLocaleString('id-ID')})`,p.mk]);
+  wsData.push([`Tunjangan Transport (@ Rp ${p.uTransport.toLocaleString('id-ID')})`,p.tr]);
+  if(p.tkm)wsData.push([`TKM — ${p.tkmCount} shift (@ Rp ${p.uTKM.toLocaleString('id-ID')})`,p.tkm]);
+  
+  if(p.pot.length){
+    wsData.push(['']);
+    wsData.push(['POTONGAN','']);
+    p.pot.forEach(x=>wsData.push([x.nama||'Potongan',-x.jumlah]));
+  }
+  
+  wsData.push(['']);
+  wsData.push(['TAKE HOME PAY',p.thp]);
+  wsData.push(['']);
+  wsData.push([`Upah/jam: Rp ${p.rate.toLocaleString('id-ID')}`]);
+  wsData.push([`Dibuat: ${new Date(p.savedAt).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`]);
+  
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+  
+  // Format columns
+  ws['!cols']=[{wch:40},{wch:15}];
+  
+  // Merge title cells
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:1}},
+    {s:{r:1,c:0},e:{r:1,c:1}},
+    {s:{r:2,c:0},e:{r:2,c:1}}
+  ];
+  
+  XLSX.utils.book_append_sheet(wb,ws,'Slip Gaji');
+  
+  const filename=`slip-gaji-${p.label.replace(/\s/g,'-')}.xlsx`;
+  XLSX.writeFile(wb,filename);
+}
+
+/* ===== DARK MODE ===== */
+function toggleDark(){S.darkMode=!S.darkMode;save();applyTheme()}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',S.darkMode?'dark':'light');
+  const tog=document.getElementById('dark-tog');if(tog)tog.className='tog'+(S.darkMode?' on':'');
+}
+
+/* ===== PERIOD REMINDER ===== */
+function checkPeriodReminder(){
+  const key=S.ps+'_'+S.pe;
+  if(S.dismissedPeriods.includes(key))return; // already dismissed
+  const endDate=new Date(S.pe+'T00:00:00');
+  const today=new Date();today.setHours(0,0,0,0);
+  if(today>endDate&&!S.savedPeriods.find(p=>p.key===key)){
+    document.getElementById('reminder-banner').style.display='flex';
+  }
+}
+function dismissReminder(){
+  const key=S.ps+'_'+S.pe;
+  if(!S.dismissedPeriods.includes(key))S.dismissedPeriods.push(key);
+  save();
+  document.getElementById('reminder-banner').style.display='none';
+}
+function saveFromReminder(){
+  savePeriod();
+  document.getElementById('reminder-banner').style.display='none';
+}
+
+/* ===== SIMULASI LEMBUR ===== */
+function updateSim(){
+  const addJam=parseInt(document.getElementById('sim-jam').value)||0;
+  const type=document.getElementById('sim-type').value;
+  const rate=hrRate();
+  const addOT=addJam>0?calcOT(addJam,type,rate):0;
+  const{ot,ins,ray,th,mk,tr,tkm,pot,hadirCount}=totals();
+  const att=S.att?135000:0;
+  const currentTHP=S.gajiPokok+S.tunJab+S.tunKel+att+ot+ins+mk+tr+tkm-pot;
+  const newTHP=currentTHP+addOT;
+  document.getElementById('sim-add').textContent=rp(addOT);
+  document.getElementById('sim-new').textContent=rp(newTHP);
+}
+
+/* ===== COLLAPSIBLE SECTIONS ===== */
+function toggleCollapse(id){
+  const el=document.getElementById(id);
+  const icon=document.getElementById(id.replace('-section','-icon'));
+  if(!el)return;
+  const isCollapsed=S.collapsed[id];
+  S.collapsed[id]=!isCollapsed;
+  save();
+  if(S.collapsed[id]){
+    el.classList.add('collapsed');
+    if(icon)icon.classList.add('collapsed');
+  }else{
+    el.classList.remove('collapsed');
+    if(icon)icon.classList.remove('collapsed');
+  }
+}
+function applyCollapsedStates(){
+  Object.keys(S.collapsed).forEach(id=>{
+    if(S.collapsed[id]){
+      const el=document.getElementById(id);
+      const icon=document.getElementById(id.replace('-section','-icon'));
+      if(el)el.classList.add('collapsed');
+      if(icon)icon.classList.add('collapsed');
+    }
+  });
+}
+
+/* ===== BACKUP/RESTORE ===== */
+function exportData(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='overtime-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert('Data berhasil di-export sebagai file JSON!');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(confirm('Import data ini akan MENIMPA semua data yang ada sekarang. Lanjutkan?')){
+        Object.assign(S,imported);
+        if(!S.savedPeriods)S.savedPeriods=[];
+        if(!S.dismissedPeriods)S.dismissedPeriods=[];
+        save();applyTheme();render();
+        alert('Data berhasil di-import! Halaman akan di-refresh.');
+        location.reload();
+      }
+    }catch(err){alert('File JSON tidak valid: '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value=''; // reset input
+}
+
 /* ===== PWA ===== */
 let dInst=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dInst=e;document.getElementById('ibtn').style.display='flex';});
@@ -987,7 +1397,7 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
   const SW=`const C='ot5';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll([location.href]).catch(()=>{})).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res&&res.status===200&&res.type==='basic'){caches.open(C).then(c=>c.put(e.request,res.clone()));}return res;}))));`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([SW],{type:'text/javascript'}))).catch(()=>{});
 }
-load();render();
+load();applyTheme();render();checkPeriodReminder();updateSim();applyCollapsedStates();
 </script>
 </body>
 </html>
