@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#111112"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="OT Tracker"/>
+<title>Overtime Tracker — SHARP WM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#C8001E;--redd:#9B0017;--redp:#FFF1F3;--reddim:rgba(200,0,30,.12);--grn:#0F7B3C;--grnp:#F0FAF4;--blu:#2563EB;--blup:#EEF5FF;--pur:#6366F1;--purp:#EEF2FF;--ink:#111112;--ink2:#48484E;--ink3:#96969F;--ink4:#C4C4CA;--surf:#FAFAF9;--card:#FFF;--bdr:rgba(0,0,0,.07);--bdr2:rgba(0,0,0,.13);--r:10px;--rs:6px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shm:0 4px 12px rgba(0,0,0,.08)}
+[data-theme="dark"]{--ink:#EFEFEF;--ink2:#B5B5B9;--ink3:#86868B;--ink4:#5E5E62;--surf:#000000;--card:#1C1C1E;--bdr:rgba(255,255,255,.12);--bdr2:rgba(255,255,255,.2);--sh:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);--shm:0 4px 12px rgba(0,0,0,.5);--redp:#2D0A0D;--reddim:rgba(200,0,30,.3);--grnp:#0A1F13;--blup:#0A1829;--purp:#1A1A2E}
+[data-theme="dark"] .hero{background:#2C2C2E;border:1px solid rgba(255,255,255,.15)}
+[data-theme="dark"] .hero::before{opacity:.15}
+[data-theme="dark"] .top{background:#1C1C1E;border-bottom:1px solid rgba(255,255,255,.12)}
+[data-theme="dark"] .mark{background:var(--red);box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+[data-theme="dark"] .hrbox{background:#2C2C2E;border:1px solid rgba(255,255,255,.15)}
+[data-theme="dark"] .hrbox-lbl{color:rgba(255,255,255,.6)}
+[data-theme="dark"] .hrbox-val{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .bnav{background:#1C1C1E;border-top-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .bnav .bni{color:rgba(255,255,255,.6)}
+[data-theme="dark"] .bnav .bni.on{color:#fff}
+[data-theme="dark"] .side-ft{border-top-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .rprev{background:#2C2C2E;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.85)}
+[data-theme="dark"] .stat{background:#2C2C2E;border-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .stat-val{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .stat-lbl{color:rgba(255,255,255,.55)}
+[data-theme="dark"] .fi{background:#2C2C2E;border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.95)}
+[data-theme="dark"] .fi::placeholder{color:rgba(255,255,255,.35)}
+[data-theme="dark"] select.fi{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .sim-result{background:#2C2C2E;border-color:rgba(255,255,255,.15)}
+[data-theme="dark"] .ltbl th{background:#2C2C2E;color:rgba(255,255,255,.7)}
+[data-theme="dark"] .ltbl td{border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .cal-day{border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .cal-day:hover{background:rgba(255,255,255,.05)}
+[data-theme="dark"] .modal-box{background:#1C1C1E}
+[data-theme="dark"] .modal-hd{border-bottom-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .slip-detail-per{background:#2C2C2E;color:rgba(255,255,255,.85)}
+[data-theme="dark"] .slip-sec-title{border-bottom-color:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+[data-theme="dark"] .slip-row{border-top-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .slip-row .sr-lbl{color:rgba(255,255,255,.75)}
+[data-theme="dark"] .slip-row .sr-val{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .slip-total-row{background:#2C2C2E;border:1px solid rgba(255,255,255,.15)}
+[data-theme="dark"] .slip-total-row .sr-lbl{color:rgba(255,255,255,.7)}
+[data-theme="dark"] .slip-total-row .sr-val{color:#fff}
+[data-theme="dark"] .slip-detail-hd{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .slip-detail-co{color:rgba(255,255,255,.95)}
+[data-theme="dark"] .slip-detail-title{color:rgba(255,255,255,.55)}
+[data-theme="dark"] .reminder{background:linear-gradient(135deg,#3D2A0F,#4D3A1F);border-bottom-color:#92400E}
+[data-theme="dark"] .reminder-txt{color:#FDE68A}
+/* REMINDER BANNER */
+.reminder{position:sticky;top:54px;z-index:90;background:linear-gradient(135deg,#FFF7E6,#FED7AA);border-bottom:1px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
+[data-theme="dark"] .reminder{background:linear-gradient(135deg,#2D1F0A,#3D2A0F);border-bottom-color:#92400E}
+.reminder-txt{font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px}
+[data-theme="dark"] .reminder-txt{color:#FDE68A}
+.reminder-btns{display:flex;gap:6px;flex-shrink:0}
+/* SIMULATION WIDGET */
+.sim-widget{background:linear-gradient(135deg,var(--blup),var(--purp));border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.sim-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sim-result{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px}
+.sim-result-lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.sim-result-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--ink)}
+.sim-result.grn .sim-result-val{color:var(--grn)}
+@media(max-width:600px){.sim-grid{grid-template-columns:1fr}}
+/* BACKUP BUTTONS */
+.backup-btns{display:flex;gap:8px;flex-wrap:wrap}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;background:var(--surf);color:var(--ink)}
+body{font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.top{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;background:var(--ink);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.05)}
+.top-l{display:flex;align-items:center;gap:10px}
+.mark{width:28px;height:28px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mark svg{width:16px;height:16px;fill:#fff}
+.t1{font-weight:600;font-size:13px;color:#fff;letter-spacing:.3px}.t2{font-size:10px;color:rgba(255,255,255,.38);margin-top:1px}
+.top-r{display:flex;align-items:center;gap:8px}
+.pchip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 10px 4px 6px;font-size:11px;color:rgba(255,255,255,.55)}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 2s ease infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ibtn{display:none;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;background:rgba(200,0,30,.3);border:1px solid rgba(200,0,30,.5);color:rgba(255,255,255,.85);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.side{background:var(--card);border-right:1px solid var(--bdr);padding:14px 0;display:flex;flex-direction:column}
+.nav-lbl{font-size:10px;font-weight:500;color:var(--ink3);letter-spacing:.8px;text-transform:uppercase;padding:0 20px;margin-bottom:5px}
+.nv{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--rs);cursor:pointer;color:var(--ink2);transition:all .15s;margin:0 8px 1px;font-size:13px}
+.nv:hover{background:var(--surf);color:var(--ink)}.nv.on{background:var(--reddim);color:var(--red);font-weight:500}
+.ni{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.side-ft{margin-top:auto;padding:11px;border-top:1px solid var(--bdr)}
+.hrbox{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px}
+.main{padding:22px;overflow-y:auto;background:var(--surf)}
+.pg{display:none}.pg.on{display:block;animation:fi .18s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ptit{font-size:20px;font-weight:600;color:var(--ink)}.psub{font-size:13px;color:var(--ink3);margin-top:3px;margin-bottom:18px}
+/* PAGE HEADERS */
+.pg-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.pg-hd-left{flex:1;min-width:0}
+.pg-hd-left .ptit{margin-bottom:0}
+.pg-hd-left .psub{margin-bottom:0;margin-top:3px}
+.pg-hd-left .d-chips{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.jam-box{flex-shrink:0;text-align:right;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 16px;box-shadow:var(--sh);min-width:96px}
+.jam-box-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--ink);line-height:1;letter-spacing:-1px}
+.jam-box-lbl{font-size:10px;color:var(--ink3);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.jam-box-sub{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--ink2);margin-top:6px;padding-top:6px;border-top:1px solid var(--bdr);line-height:1}
+.jam-box-sub2{font-size:10px;color:var(--ink4);margin-top:2px}
+/* STAT CHIPS (calendar stats bar) */
+.stat-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;padding-bottom:13px;border-bottom:1px solid var(--bdr)}
+.stat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;font-size:12px;color:var(--ink2)}
+.stat-chip .sv{font-family:'DM Mono',monospace;font-weight:500;color:var(--ink)}
+.stat-chip.red{background:var(--redp);border-color:rgba(200,0,30,.2)}.stat-chip.red .sv{color:var(--red)}
+.stat-chip.grn{background:var(--grnp);border-color:rgba(15,123,60,.2)}.stat-chip.grn .sv{color:var(--grn)}
+.stat-chip.pur{background:var(--purp);border-color:rgba(99,102,241,.2)}.stat-chip.pur .sv{color:var(--pur)}
+/* D CHIPS (period tags in dashboard header) */
+.d-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;font-size:11px;color:var(--ink3)}
+.d-chip strong{color:var(--ink2);font-weight:500}
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--pur),var(--blu));opacity:.4}
+.card+.card{margin-top:12px}.cb{padding:16px}
+/* COLLAPSIBLE SECTIONS */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;cursor:pointer;user-select:none;padding:4px 0;border-radius:4px;transition:background .15s}
+.sec-hd:hover{background:var(--surf)}
+.sect{font-size:11px;font-weight:500;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.collapse-icon{width:14px;height:14px;stroke:var(--ink3);transition:transform .2s;flex-shrink:0}
+.collapse-icon.collapsed{transform:rotate(-90deg)}
+.collapsible-content{overflow:hidden;transition:max-height .3s ease,opacity .3s ease}
+.collapsible-content.collapsed{max-height:0!important;opacity:0}
+.hero{background:var(--ink);border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--red);border-radius:50%;opacity:.07}
+.hlbl{font-size:10px;color:rgba(255,255,255,.38);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.hamt{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:#fff;letter-spacing:-1px;line-height:1}
+.hbd{display:flex;flex-wrap:wrap;gap:14px;margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+.hcl{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}
+.hcv{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.75)}.hcv.pos{color:#6ee7a0}.hcv.neg{color:#fca5a5}
+.g6{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px;box-shadow:var(--sh)}
+.scl{font-size:11px;color:var(--ink3);margin-bottom:4px}.scv{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--ink)}.scs{font-size:11px;color:var(--ink3);margin-top:3px}
+.sc.ra{border-color:rgba(200,0,30,.2);background:var(--redp)}.sc.ra .scv{color:var(--red)}
+.sc.ga{border-color:rgba(15,123,60,.2);background:var(--grnp)}.sc.ga .scv{color:var(--grn)}
+.sc.pa{border-color:rgba(99,102,241,.2);background:var(--purp)}.sc.pa .scv{color:var(--pur)}
+/* ATTENDANCE TOGGLE */
+.attbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px 17px;margin-bottom:12px;box-shadow:var(--sh)}
+.tog{width:44px;height:25px;border-radius:13px;background:#E2E2E7;cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+.tog.on{background:var(--red)}.tog::after{content:'';position:absolute;width:19px;height:19px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}.tog.on::after{left:22px}
+.tog.grn.on{background:var(--grn)}.tog.pur.on{background:var(--pur)}
+/* LOG TABLE */
+.sechd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.sect{font-size:11px;font-weight:500;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px}
+.ltbl{width:100%;border-collapse:collapse}
+.ltbl th{font-size:10px;color:var(--ink3);font-weight:500;text-align:left;padding:7px 9px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--bdr2)}
+.ltbl td{padding:8px 9px;border-bottom:1px solid var(--bdr);font-size:12px;vertical-align:middle}
+.ltbl tr:last-child td{border-bottom:none}.ltbl tr:hover td{background:var(--surf)}
+.chip{display:inline-flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500}
+.ck{background:#F0F0F5;color:#48484E}.cl{background:#EEF5FF;color:#2563EB}.cr{background:#FFF7E6;color:#D97706}
+.mn{font-family:'DM Mono',monospace}
+.delbtn{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:12px;padding:2px 3px;border-radius:3px}.delbtn:hover{color:var(--red)}
+.emp{text-align:center;padding:24px 16px;color:var(--ink3);font-size:13px}
+.emp svg{width:28px;height:28px;stroke:var(--ink4);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 7px;display:block}
+/* NOTES */
+.notes-list{}.noteit{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}.noteit:last-child{border-bottom:none}
+.ndb{flex-shrink:0;width:40px;text-align:center;background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:4px 3px}
+.ndd{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--ink);line-height:1}.ndm{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.nbdy{flex:1;min-width:0}.ntxt{font-size:12px;color:var(--ink2);line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-top:3px}.npast{opacity:.5}
+/* CALENDAR */
+.calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.calml{font-size:15px;font-weight:600;color:var(--ink)}
+.cbtn{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--bdr2);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink2);font-size:15px;transition:all .15s}.cbtn:hover{background:var(--surf)}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.ch{text-align:center;font-size:10px;font-weight:500;color:var(--ink3);padding:4px 0;text-transform:uppercase;letter-spacing:.3px}
+.cc{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:all .12s;gap:1px;min-height:38px;position:relative}
+.cc:hover{background:var(--surf);border-color:var(--bdr2)}
+.cc.wknd .dn{color:var(--ink3)}.cc.ip{border-color:var(--bdr)}
+/* hadir only (no lembur) */
+.cc.hd{background:var(--grnp);border-color:rgba(15,123,60,.2)}
+/* has overtime (implies hadir) */
+.cc.hh{background:var(--redp);border-color:rgba(200,0,30,.2)}
+/* hari raya */
+.cc.hr{background:#FFF7E6;border-color:#F59E0B40}
+/* notes only */
+.cc.hn:not(.hd):not(.hh):not(.hr){background:#F0F7FF;border-color:rgba(37,99,235,.15)}
+.cc.sel{border-color:var(--red)!important;box-shadow:0 0 0 2px rgba(200,0,30,.14)}
+.cc.td .dn{color:var(--red);font-weight:600}
+.dn{font-size:12px;color:var(--ink);line-height:1}
+.dbs{display:flex;gap:2px;align-items:center;flex-wrap:wrap;justify-content:center}
+.db{font-size:8px;font-weight:500;padding:1px 3px;border-radius:3px;font-family:'DM Mono',monospace;line-height:1.3}
+.dbh{background:rgba(200,0,30,.15);color:var(--red)}
+.dbg{background:rgba(15,123,60,.15);color:var(--grn)}
+.dbr{background:#FEF3C7;color:#92400E}
+.dbp{background:var(--purp);color:var(--pur)}
+.dbn{width:4px;height:4px;border-radius:50%;background:#2563EB;display:inline-block}
+.calleg{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink3)}.lb{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+/* DAY PANEL */
+.dpan{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--shm);padding:17px;margin-top:11px;animation:fi .15s ease;scroll-margin-top:60px}
+.dphd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px}
+.dpdt{font-size:14px;font-weight:600;color:var(--ink)}.dptp{font-size:12px;color:var(--ink3);margin-top:2px}
+.xbtn{width:26px;height:26px;border-radius:5px;background:var(--surf);border:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:14px;line-height:1}.xbtn:hover{background:var(--bdr)}
+/* Toggle rows in day panel */
+.togrow{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:var(--rs);border:1px solid var(--bdr);margin-bottom:9px}
+.togrow.active-grn{background:var(--grnp);border-color:rgba(15,123,60,.25)}
+.togrow.active-pur{background:var(--purp);border-color:rgba(99,102,241,.25)}
+.togrow-info .togrow-title{font-size:13px;font-weight:500;color:var(--ink)}
+.togrow-info .togrow-desc{font-size:11px;color:var(--ink3);margin-top:1px}
+/* Lembur section */
+.lembur-section{padding:12px 13px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:9px}
+.lembur-section.hidden{display:none}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:5px}.fl{font-size:12px;color:var(--ink2);font-weight:500}
+.fi{padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:14px;color:var(--ink);background:var(--surf);transition:border-color .15s;font-family:'DM Mono',monospace;-moz-appearance:textfield;width:100%}
+.fi::-webkit-outer-spin-button,.fi::-webkit-inner-spin-button{-webkit-appearance:none}.fi:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,0,30,.1)}
+textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line-height:1.5;min-height:66px}
+.mkbox{display:flex;align-items:flex-start;gap:7px;padding:9px 11px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--rs);margin-bottom:9px;font-size:12px;color:#92400E;line-height:1.5}
+.rrow{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--bdr);margin-bottom:9px}
+.btnrow{display:flex;gap:7px;margin-top:11px}
+.bp{padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}.bp:hover{background:var(--redd)}
+.bg{padding:8px 13px;background:transparent;color:var(--ink2);border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}.bg:hover{background:var(--surf)}
+/* SETTINGS */
+.ssec{margin-bottom:20px}.stit{font-size:11px;font-weight:500;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px;padding-bottom:7px;border-bottom:1px solid var(--bdr)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.sgrid.c3{grid-template-columns:1fr 1fr 1fr}
+.sfg{display:flex;flex-direction:column;gap:5px}.sl{font-size:12px;color:var(--ink2);font-weight:500}.sh{font-size:11px;color:var(--ink3);margin-top:2px}
+.si{padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:14px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--card);width:100%;-moz-appearance:textfield}
+.si[type=date]{font-family:'DM Sans',sans-serif;font-size:13px}.si::-webkit-outer-spin-button,.si::-webkit-inner-spin-button{-webkit-appearance:none}
+.si:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,0,30,.1)}
+.pp{display:flex;align-items:flex-start;gap:7px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);padding:9px 12px;margin-top:9px;font-size:12px;color:var(--ink3);line-height:1.5}
+.pp strong{color:var(--ink)}
+/* POTONGAN */
+.potrow{display:flex;gap:7px;align-items:center;margin-bottom:7px;animation:fi .15s ease}
+.potrow input[type=text]{flex:1;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--card);min-width:0}
+.potrow input[type=text]:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,0,30,.1)}
+.potrow input[type=number]{width:130px;flex-shrink:0;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:'DM Mono',monospace;color:var(--ink);background:var(--card);-moz-appearance:textfield}
+.potrow input[type=number]::-webkit-outer-spin-button,.potrow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.potrow input[type=number]:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,0,30,.1)}
+.pottot{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--redp);border:1px solid rgba(200,0,30,.15);border-radius:var(--rs);font-size:12px;margin-top:4px}
+.pottot span:last-child{font-family:'DM Mono',monospace;font-weight:500;color:var(--red)}
+.addbtn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:transparent;border:1px dashed var(--bdr2);border-radius:var(--rs);font-size:12px;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%;justify-content:center;margin-top:3px}
+.addbtn:hover{border-color:var(--ink4);color:var(--ink2);background:var(--surf)}
+/* RATE PREVIEW */
+.rprev{background:var(--ink);color:#fff;border-radius:var(--r);padding:16px;margin-top:14px}
+.rpt{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.4px;margin-bottom:9px}
+.rpr{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)}.rpr:last-child{border-bottom:none}
+.rpr span:first-child{font-size:12px;color:rgba(255,255,255,.42)}.rpr span:last-child{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.78)}
+.rpr.tot span:first-child{color:rgba(255,255,255,.72)}.rpr.tot span:last-child{color:#fff;font-size:14px}
+.mt{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}.mt th{font-size:10px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.3px;padding:7px 9px;text-align:left;background:var(--surf);border-bottom:1px solid var(--bdr2)}.mt td{padding:7px 9px;border-bottom:1px solid var(--bdr)}.mt tr:last-child td{border-bottom:none}
+.mv{font-family:'DM Mono',monospace;font-weight:500}.m2{color:#2563EB}.m3{color:#D97706}.m4{color:var(--red)}.m5{color:#7C3AED}
+.ib{background:#FFF7E6;color:#D97706;border:1px solid #FDE68A;border-radius:3px;font-size:10px;font-weight:500;padding:1px 5px;margin-left:3px;display:inline-block}
+/* BOTTOM NAV */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--ink);border-top:1px solid rgba(255,255,255,.07);grid-template-columns:repeat(4,1fr);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.35);font-size:9px;border:none;background:none;font-family:'DM Sans',sans-serif;transition:color .15s}.bni.on{color:#fff}
+.bni svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* SLIP LIST */
+.slip-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--bdr);cursor:pointer;transition:opacity .15s}
+.slip-item:last-child{border-bottom:none}.slip-item:hover{opacity:.75}
+.slip-icon{width:38px;height:38px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.slip-icon svg{width:16px;height:16px;stroke:var(--ink3);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.slip-info{flex:1;min-width:0}
+.slip-per{font-size:13px;font-weight:500;color:var(--ink)}
+.slip-thp{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--red);margin-top:2px}
+.slip-meta{font-size:11px;color:var(--ink3);margin-top:1px}
+.slip-arrow{color:var(--ink4);font-size:16px}
+/* MODAL OVERLAY */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:500px){.modal-ov{align-items:center}}
+.modal-box{background:var(--card);border-radius:16px 16px 0 0;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 -4px 30px rgba(0,0,0,.2)}
+@media(min-width:500px){.modal-box{border-radius:var(--r);max-height:85vh}}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);z-index:1}
+.modal-title{font-size:15px;font-weight:600;color:var(--ink)}
+.modal-body{padding:20px}
+/* SLIP DETAIL */
+.slip-detail{}
+.slip-detail-hd{text-align:center;margin-bottom:20px}
+.slip-detail-co{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.5px;text-transform:uppercase}
+.slip-detail-title{font-size:11px;color:var(--ink3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.slip-detail-per{font-size:12px;color:var(--ink2);margin-top:6px;padding:5px 12px;background:var(--surf);border-radius:12px;display:inline-block}
+.slip-section{margin-bottom:16px}
+.slip-sec-title{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--bdr)}
+.slip-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px}
+.slip-row+.slip-row{border-top:1px solid var(--bdr)}
+.slip-row .sr-lbl{color:var(--ink2)}
+.slip-row .sr-val{font-family:'DM Mono',monospace;font-weight:500;color:var(--ink)}
+.slip-row.neg .sr-val{color:var(--red)}
+.slip-row.pos .sr-val{color:var(--grn)}
+.slip-total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ink);border-radius:var(--rs);margin-top:4px}
+.slip-total-row .sr-lbl{color:rgba(255,255,255,.6);font-size:12px}
+.slip-total-row .sr-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:#fff}
+@media print{.shell,.bnav,.modal-hd .no-print{display:none!important}.modal-ov{position:static;background:none}.modal-box{box-shadow:none;border-radius:0;max-height:none}}
+@media(max-width:760px){.shell{grid-template-columns:1fr}.side{display:none}.main{padding:13px;padding-bottom:68px}.g6{grid-template-columns:repeat(2,1fr)}.hamt{font-size:26px}.t2{display:none}.sgrid.c3{grid-template-columns:1fr 1fr}.bnav{display:grid}.ltbl th:nth-child(6),.ltbl td:nth-child(6),.ltbl th:nth-child(7),.ltbl td:nth-child(7){display:none}.frow{grid-template-columns:1fr}.potrow input[type=number]{width:110px}}
+@media(max-width:420px){.g6{grid-template-columns:1fr 1fr}.sgrid,.sgrid.c3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top">
+  <div class="top-l">
+    <div class="mark"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></div>
+    <div><div class="t1">Overtime Tracker</div><div class="t2">Production — Washing Machine Div</div></div>
+  </div>
+  <div class="top-r">
+    <div class="pchip"><div class="pdot"></div><span id="tper">—</span></div>
+    <button class="ibtn" id="ibtn" onclick="installApp()">&#8659; Install</button>
+  </div>
+</header>
+
+<!-- REMINDER BANNER (shown if period expired and not saved) -->
+<div class="reminder" id="reminder-banner" style="display:none">
+  <div class="reminder-txt">
+    <span style="font-size:18px">⏰</span>
+    <span><strong>Periode lalu sudah berakhir.</strong> Simpan slip gaji sekarang agar data tidak hilang?</span>
+  </div>
+  <div class="reminder-btns">
+    <button class="bp" onclick="saveFromReminder()" style="font-size:12px;padding:6px 12px">Simpan Sekarang</button>
+    <button class="bg" onclick="dismissReminder()" style="font-size:12px;padding:6px 12px">Nanti Saja</button>
+  </div>
+</div>
+
+<nav class="side">
+  <div style="padding:0 8px">
+    <div class="nav-lbl" style="padding:0 12px;margin-bottom:5px">Menu</div>
+    <div class="nv on" id="nvd" onclick="go('d')"><svg class="ni" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Ringkasan</div>
+    <div class="nv" id="nvk" onclick="go('k')"><svg class="ni" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender</div>
+    <div class="nv" id="nvsl" onclick="go('sl')"><svg class="ni" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Slip Gaji</div>
+    <div class="nv" id="nvs" onclick="go('s')"><svg class="ni" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Pengaturan</div>
+  </div>
+  <div class="side-ft">
+    <div class="hrbox">
+      <div style="font-size:10px;color:var(--ink3);margin-bottom:3px">Upah per jam (1/173)</div>
+      <div class="mn" style="font-size:14px;font-weight:500" id="hrlbl">Rp —</div>
+    </div>
+    <div style="text-align:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);font-size:9px;color:var(--ink4);letter-spacing:.3px">
+      Dibuat oleh <strong style="color:var(--ink3)">NWBC</strong>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="pg on" id="pgd">
+  <div class="pg-hd">
+    <div class="pg-hd-left">
+      <div class="ptit">Ringkasan THP</div>
+      <div id="dsub" style="font-size:12px;color:var(--ink3);margin-top:4px">Memuat periode...</div>
+      <div id="d-chips" style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap"></div>
+    </div>
+    <div class="jam-box">
+      <div class="jam-box-num" id="d-jam-num">0</div>
+      <div class="jam-box-lbl">jam lembur</div>
+      <div class="jam-box-sub" id="d-hari-sub">0 hari</div>
+      <div class="jam-box-sub2">periode ini</div>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="hlbl">Estimasi Take Home Pay</div>
+    <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+      <div class="hamt" id="hamt">Rp 0</div>
+      <div style="padding-bottom:5px;display:flex;align-items:center;gap:6px">
+        <span id="h-jam-badge" style="font-family:'DM Mono',monospace;font-size:14px;color:rgba(255,255,255,.9);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:3px 9px">0 jam</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.4)">lembur</span>
+      </div>
+    </div>
+    <div class="hbd" id="hbd"></div>
+  </div>
+  <div class="g6" id="scards"></div>
+  <div class="attbar">
+    <div><div style="font-weight:500;font-size:14px">Tunjangan Kehadiran</div><div style="font-size:12px;color:var(--ink3);margin-top:1px">Rp 135.000 — centang jika tidak ada absensi bulan ini</div></div>
+    <button class="tog" id="atog" onclick="togAtt()"><span></span></button>
+  </div>
+  <div class="card"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('log-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="log-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Log Harian Periode Ini
+      </div>
+      <div id="lchip"></div>
+    </div>
+    <div class="collapsible-content" id="log-section" style="max-height:2000px"><div id="ltbl"></div></div>
+  </div></div>
+  <div class="card"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('notes-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="notes-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Catatan &amp; Reminder
+      </div>
+      <div id="ncnt" style="font-size:11px;color:var(--ink3)"></div>
+    </div>
+    <div class="collapsible-content" id="notes-section" style="max-height:2000px"><div id="nbody"></div></div>
+  </div></div>
+  
+  <!-- SIMULASI LEMBUR (moved to bottom) -->
+  <div class="sim-widget">
+    <div class="sim-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Simulasi Lembur — Hitung Tambahan THP
+    </div>
+    <div class="sim-grid">
+      <div class="fg">
+        <label class="fl">Tambah Jam Lembur</label>
+        <input type="number" class="fi" id="sim-jam" min="0" max="16" value="0" oninput="updateSim()" placeholder="0"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Tipe Hari</label>
+        <select class="fi" id="sim-type" onchange="updateSim()" style="font-family:'DM Sans',sans-serif">
+          <option value="kerja">Hari Kerja (2-4×)</option>
+          <option value="libur">Hari Libur (2-4×)</option>
+          <option value="raya">Hari Raya (3-5×)</option>
+        </select>
+      </div>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-result grn">
+        <div class="sim-result-lbl">Tambahan Uang Lembur</div>
+        <div class="sim-result-val" id="sim-add">Rp 0</div>
+      </div>
+      <div class="sim-result">
+        <div class="sim-result-lbl">THP Proyeksi Baru</div>
+        <div class="sim-result-val" id="sim-new">Rp 0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KALENDER -->
+<div class="pg" id="pgk">
+  <div class="pg-hd">
+    <div class="pg-hd-left">
+      <div class="ptit">Input Harian</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:4px">Klik tanggal untuk absen, lembur, TKM &amp; catatan</div>
+    </div>
+    <div class="jam-box">
+      <div class="jam-box-num" id="k-jam-num">0</div>
+      <div class="jam-box-lbl">jam lembur</div>
+      <div class="jam-box-sub" id="k-hari-sub">0 hari</div>
+      <div class="jam-box-sub2">periode ini</div>
+    </div>
+  </div>
+  <div class="card"><div class="cb">
+    <div class="calnav"><button class="cbtn" onclick="prevM()">&#8592;</button><div class="calml" id="calml"></div><button class="cbtn" onclick="nextM()">&#8594;</button></div>
+    <div class="stat-bar" id="cal-stat-bar"></div>
+    <div class="cgrid" id="calhd"></div>
+    <div class="cgrid" style="margin-top:3px" id="calgrid"></div>
+    <div class="calleg">
+      <div class="li"><div class="lb" style="background:var(--grnp);border:1px solid rgba(15,123,60,.2)"></div>Hadir</div>
+      <div class="li"><div class="lb" style="background:var(--redp);border:1px solid rgba(200,0,30,.2)"></div>Hadir + Lembur</div>
+      <div class="li"><div class="lb" style="background:var(--purp);border:1px solid rgba(99,102,241,.2)"></div>TKM</div>
+      <div class="li"><div class="lb" style="background:#FFF7E6;border:1px solid #F59E0B40"></div>Hari Raya</div>
+      <div class="li"><div class="lb" style="border:1px solid var(--bdr2)"></div>Dalam periode</div>
+    </div>
+  </div></div>
+  <div id="dpwrap"></div>
+</div>
+
+<!-- PENGATURAN -->
+<div class="pg" id="pgs">
+  <div class="ptit">Pengaturan</div><div class="psub">Gaji, periode, tunjangan harian &amp; potongan</div>
+  <div class="card" style="margin-bottom:12px"><div class="cb">
+
+    <div class="ssec"><div class="stit">Komponen Gaji</div>
+      <div class="sgrid c3">
+        <div class="sfg"><label class="sl">Gaji Pokok (Rp)</label><input type="number" class="si" id="sg" oninput="applyS()"/></div>
+        <div class="sfg"><label class="sl">Tunjangan Jabatan (Rp)</label><input type="number" class="si" id="sj" oninput="applyS()"/></div>
+        <div class="sfg"><label class="sl">Tunjangan Keluarga (Rp)</label><input type="number" class="si" id="sk" oninput="applyS()"/></div>
+      </div>
+    </div>
+
+    <div class="ssec"><div class="stit">Periode Gaji Aktif</div>
+      <div class="sgrid">
+        <div class="sfg"><label class="sl">Tanggal Mulai</label><input type="date" class="si" id="sp" oninput="applyS()"/><div class="sh">Awal periode penerimaan gaji</div></div>
+        <div class="sfg"><label class="sl">Tanggal Akhir</label><input type="date" class="si" id="se" oninput="applyS()"/><div class="sh">Akhir periode penerimaan gaji</div></div>
+      </div>
+      <div class="pp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="pptxt">—</span></div>
+    </div>
+
+    <div class="ssec"><div class="stit">Tunjangan Harian</div>
+      <div class="sgrid c3">
+        <div class="sfg"><label class="sl">Uang Makan / hari (Rp)</label><input type="number" class="si" id="smk" oninput="applyS()"/><div class="sh">Default Rp 15.000</div></div>
+        <div class="sfg"><label class="sl">Tunjangan Transport / hari (Rp)</label><input type="number" class="si" id="str" oninput="applyS()"/><div class="sh">Default Rp 15.000</div></div>
+        <div class="sfg"><label class="sl">Tunjangan Kerja Malam / hari (Rp)</label><input type="number" class="si" id="stkm" oninput="applyS()"/><div class="sh">TKM per shift malam</div></div>
+      </div>
+      <div class="pp" style="margin-top:9px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span style="font-size:12px;color:var(--ink3);line-height:1.6">Makan lembur: <strong style="color:var(--ink)">≤2j</strong>=1× · <strong style="color:var(--ink)">>2j</strong>=2× · <strong style="color:var(--ink)">≥7j</strong>=1× (lembur harian) · Transport &amp; TKM = 1× per hari dicentang</span>
+      </div>
+    </div>
+
+    <div class="ssec" style="margin-bottom:0"><div class="stit">Potongan</div>
+      <div id="potlist"></div>
+      <button class="addbtn" onclick="addPot()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Tambah Potongan</button>
+      <div id="pottot" style="display:none" class="pottot"><span>Total Potongan</span><span id="pottotval"></span></div>
+    </div>
+    <div class="rprev" id="rprev"></div>
+  </div></div>
+
+  <div class="card" style="margin-bottom:12px"><div class="cb">
+    <div class="stit">Tampilan &amp; Data</div>
+    
+    <!-- Dark Mode -->
+    <div class="attbar" style="margin-bottom:16px">
+      <div>
+        <div style="font-weight:500;font-size:14px">Mode Gelap (Dark Mode)</div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:1px">Hemat baterai untuk shift malam</div>
+      </div>
+      <button class="tog" id="dark-tog" onclick="toggleDark()"><span></span></button>
+    </div>
+
+    <!-- Backup/Restore -->
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:8px">Backup &amp; Restore Data</div>
+      <div class="backup-btns">
+        <button class="bp" onclick="exportData()" style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Data JSON
+        </button>
+        <button class="bg" onclick="document.getElementById('import-file').click()" style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import Data JSON
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+      </div>
+      <div class="pp" style="margin-top:9px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span style="font-size:11px;line-height:1.5">Export untuk backup data ke file. Import untuk restore atau pindah data ke HP lain. Data yang di-import akan <strong>menimpa</strong> data saat ini.</span>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="cb">
+    <div class="stit">Referensi Pengali Lembur (PKB Pasal 23)</div>
+    <table class="mt"><thead><tr><th>Tipe Hari</th><th>Jam 1–7</th><th>Jam 8</th><th>Jam 9+</th><th>Keterangan</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip ck">Hari Kerja</span></td><td><span class="mv m2">2×</span></td><td><span class="mv m3">3×</span></td><td><span class="mv m4">4×</span></td><td style="font-size:11px;color:var(--ink3)">Senin–Jumat</td></tr>
+      <tr><td><span class="chip cl">Hari Libur</span></td><td><span class="mv m2">2×</span></td><td><span class="mv m3">3×</span></td><td><span class="mv m4">4×</span></td><td style="font-size:11px;color:var(--ink3)">Sabtu–Minggu</td></tr>
+      <tr><td><span class="chip cr">Hari Raya</span></td><td><span class="mv m3">3×</span></td><td><span class="mv m4">4×</span></td><td><span class="mv m5">5×</span></td><td style="font-size:11px;color:var(--ink3)">Manual <span class="ib">+Rp 125.000</span></td></tr>
+    </tbody></table>
+    <div style="margin-top:11px;padding:10px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--bdr);font-size:12px;color:var(--ink3);line-height:1.7"><strong style="color:var(--ink2)">Basis Upah per Jam</strong> = (Gaji Pokok + Tunjangan Jabatan + Tunjangan Keluarga) ÷ 173</div>
+  </div></div>
+</div>
+<!-- SLIP GAJI -->
+<div class="pg" id="pgsl">
+  <div class="pg-hd">
+    <div class="pg-hd-left">
+      <div class="ptit">Slip Gaji</div>
+      <div style="font-size:12px;color:var(--ink3);margin-top:4px">Simpan &amp; lihat riwayat slip per periode</div>
+    </div>
+    <button class="bp" onclick="savePeriod()" style="flex-shrink:0;display:flex;align-items:center;gap:6px;align-self:center">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Simpan Periode
+    </button>
+  </div>
+  
+  <!-- TREND CHART -->
+  <div class="card" id="chart-card" style="display:none"><div class="cb">
+    <div class="sec-hd" onclick="toggleCollapse('chart-section')">
+      <div class="sect">
+        <svg class="collapse-icon" id="chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Grafik Tren Lembur &amp; THP
+      </div>
+      <div style="font-size:11px;color:var(--ink3)">Perbandingan antar periode</div>
+    </div>
+    <div class="collapsible-content" id="chart-section" style="max-height:2000px">
+      <div style="position:relative;height:280px;width:100%">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+  </div></div>
+  
+  <div class="card"><div class="cb">
+    <div class="sechd"><div class="sect">Riwayat Slip</div><div id="slip-count" style="font-size:11px;color:var(--ink3)"></div></div>
+    <div id="slip-list"></div>
+  </div></div>
+</div>
+
+</main>
+</div>
+
+<!-- MODAL SLIP DETAIL -->
+<div class="modal-ov" id="slip-modal" style="display:none" onclick="closeSlipModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Detail Slip</div>
+      <div style="display:flex;gap:8px">
+        <button class="bp no-print" onclick="exportSlipExcel()" style="padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 1-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Excel
+        </button>
+        <button class="bg no-print" onclick="printSlip()" style="padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Cetak
+        </button>
+        <button class="xbtn no-print" onclick="closeSlipModal()">×</button>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<nav class="bnav">
+  <button class="bni on" id="bnd" onclick="go('d')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Ringkasan</button>
+  <button class="bni" id="bnk" onclick="go('k')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender</button>
+  <button class="bni" id="bnsl" onclick="go('sl')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Slip</button>
+  <button class="bni" id="bns" onclick="go('s')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Pengaturan</button>
+</nav>
+
+<script>
+const MO=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const DY=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const NOW=new Date();
+const TS=(()=>{const y=NOW.getFullYear(),m=NOW.getMonth(),d=NOW.getDate();return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')})();
+
+function df(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+function defPer(){const y=NOW.getFullYear(),m=NOW.getMonth(),py=m===0?y-1:y,pm=m===0?11:m-1;return{s:df(py,pm,16),e:df(y,m,15)}}
+
+/* ===== STATE =====
+   log per hari: { hadir, hours, isRaya, tkm, notes }
+   - hadir  : boolean  — apakah masuk kerja hari ini
+   - hours  : number   — jam lembur (0 jika tidak lembur)
+   - isRaya : boolean  — hari raya (manual)
+   - tkm    : boolean  — dapat tunjangan kerja malam
+   - notes  : string   — catatan bebas
+*/
+let S={
+  gajiPokok:5000000, tunJab:595000, tunKel:130000,
+  ps:defPer().s, pe:defPer().e,
+  att:false,
+  uMakan:15000, uTransport:15000, uTKM:0,
+  pot:[], logs:{},
+  savedPeriods:[],
+  darkMode:false, dismissedPeriods:[], collapsed:{},
+  vy:NOW.getFullYear(), vm:NOW.getMonth(), sel:null
+};
+
+function save(){try{localStorage.setItem('ot5',JSON.stringify({gajiPokok:S.gajiPokok,tunJab:S.tunJab,tunKel:S.tunKel,ps:S.ps,pe:S.pe,att:S.att,uMakan:S.uMakan,uTransport:S.uTransport,uTKM:S.uTKM,pot:S.pot,logs:S.logs,savedPeriods:S.savedPeriods,darkMode:S.darkMode,dismissedPeriods:S.dismissedPeriods,collapsed:S.collapsed}));}catch(e){}}
+function load(){try{const d=localStorage.getItem('ot5');if(d){const p=JSON.parse(d);Object.assign(S,p);if(!S.savedPeriods)S.savedPeriods=[];if(!S.dismissedPeriods)S.dismissedPeriods=[];if(!S.collapsed)S.collapsed={};}}catch(e){}}
+
+const fmt=n=>new Intl.NumberFormat('id-ID').format(Math.round(n));
+const rp=n=>'Rp '+fmt(n);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const uid=()=>Math.random().toString(36).slice(2,8);
+
+function hrRate(){return(S.gajiPokok+S.tunJab+S.tunKel)/173}
+function calcOT(h,t,r){let x=0;for(let i=1;i<=h;i++)x+=(t==='raya'?(i<=7?3:i===8?4:5):(i<=7?2:i===8?3:4))*r;return x}
+
+/* Uang makan per hari hadir berdasarkan jam lembur:
+   - Tidak lembur / lembur ≤2j : 1× uang makan
+   - Lembur >2j dan <7j         : 2× uang makan
+   - Lembur ≥7j (lembur harian) : 1× uang makan   */
+function mkForDay(h){
+  if(h>2&&h<7)return S.uMakan*2;
+  return S.uMakan;
+}
+function mkHint(h){
+  if(h>=7)return'Lembur harian (≥7j) — 1× makan';
+  if(h>2)return'Lembur >2j — 2× makan';
+  if(h>0)return'Lembur ≤2j — 1× makan';
+  return'Hadir tanpa lembur — 1× makan';
+}
+
+function dType(ds){
+  const l=S.logs[ds];
+  if(l&&l.isRaya)return'raya';
+  const d=new Date(ds+'T00:00:00');
+  return(d.getDay()===0||d.getDay()===6)?'libur':'kerja';
+}
+
+function getPer(){return{s:new Date(S.ps+'T00:00:00'),e:new Date(S.pe+'T00:00:00')}}
+function inPer(ds){const{s,e}=getPer(),d=new Date(ds+'T00:00:00');return d>=s&&d<=e}
+
+/* Logs dalam periode yang hadir (hadir=true ATAU ada hours untuk backward compat) */
+function pLogs(){
+  const{s,e}=getPer();
+  return Object.entries(S.logs).filter(([d])=>{
+    const dt=new Date(d+'T00:00:00');
+    const log=S.logs[d];
+    return dt>=s&&dt<=e&&(log.hadir||log.hours>0);
+  });
+}
+/* Logs dalam periode yang punya lembur */
+function pOTLogs(){return pLogs().filter(([,l])=>l.hours>0)}
+
+function totals(){
+  const r=hrRate();
+  let ot=0,ins=0,ray=0,th=0,mk=0,tr=0,tkm=0;
+  for(const[d,data]of pLogs()){
+    const h=data.hours||0;
+    const t=dType(d);
+    if(h>0){ot+=calcOT(h,t,r);th+=h;if(t==='raya'){ins+=125000;ray++;}}
+    mk+=mkForDay(h);
+    tr+=S.uTransport;
+    if(data.tkm)tkm+=S.uTKM;
+  }
+  const pot=S.pot.reduce((a,p)=>a+(Number(p.jumlah)||0),0);
+  const hadirCount=pLogs().length;
+  const tkmCount=pLogs().filter(([,l])=>l.tkm).length;
+  return{ot,ins,ray,th,mk,tr,tkm,pot,hadirCount,tkmCount,otDays:pOTLogs().length};
+}
+
+/* ===== RENDER ===== */
+function render(){
+  const r=hrRate();
+  const{ot,ins,ray,th,mk,tr,tkm,pot,hadirCount,tkmCount,otDays}=totals();
+  const{s,e}=getPer();
+  const att=S.att?135000:0;
+  const thp=S.gajiPokok+S.tunJab+S.tunKel+att+ot+ins+mk+tr+tkm-pot;
+  const per=s.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' – '+e.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+
+  document.getElementById('tper').textContent=per;
+  document.getElementById('dsub').textContent=per;
+  document.getElementById('hrlbl').textContent=rp(r);
+  document.getElementById('hamt').textContent=rp(thp);
+  // Jam lembur badge di hero
+  const hjb=document.getElementById('h-jam-badge');if(hjb)hjb.textContent=th+' jam';
+
+  // Dashboard header stats
+  document.getElementById('d-jam-num').textContent=th;
+  document.getElementById('d-hari-sub').textContent=hadirCount+' hari hadir';
+  document.getElementById('d-chips').innerHTML=[
+    `<span class="d-chip"><strong>${otDays}</strong> hari lembur</span>`,
+    ...(tkmCount?[`<span class="d-chip"><strong>${tkmCount}</strong> shift TKM</span>`]:[]),
+    `<span class="d-chip"><strong>${rp(ot)}</strong> uang lembur</span>`,
+  ].join('');
+
+  // Calendar header stats
+  const calStatHtml=[
+    `<span class="stat-chip red"><span class="sv">${th} jam</span> lembur</span>`,
+    `<span class="stat-chip grn"><span class="sv">${hadirCount} hari</span> hadir</span>`,
+    `<span class="stat-chip">${otDays} hari lembur</span>`,
+    ...(tkmCount?[`<span class="stat-chip pur"><span class="sv">${tkmCount}</span> TKM</span>`]:[]),
+  ].join('');
+  const kjn=document.getElementById('k-jam-num');if(kjn)kjn.textContent=th;
+  const khs=document.getElementById('k-hari-sub');if(khs)khs.textContent=hadirCount+' hari hadir';
+  const csb=document.getElementById('cal-stat-bar');if(csb)csb.innerHTML=calStatHtml;
+
+  const bd=[
+    {l:'Gaji Pokok',v:S.gajiPokok},
+    {l:'Tunjangan',v:S.tunJab+S.tunKel},
+    ...(att?[{l:'Kehadiran',v:att}]:[]),
+    {l:'Lembur',v:ot,pos:true},
+    ...(ins?[{l:'Ins. Raya',v:ins,pos:true}]:[]),
+    {l:'Makan',v:mk,pos:true},
+    {l:'Transport',v:tr,pos:true},
+    ...(tkm?[{l:'TKM',v:tkm,pos:true}]:[]),
+    ...(pot?[{l:'Potongan',v:pot,neg:true}]:[]),
+  ];
+  document.getElementById('hbd').innerHTML=bd.map(b=>`<div><div class="hcl">${b.l}</div><div class="hcv${b.pos?' pos':b.neg?' neg':''}">${b.neg?'−':''}${rp(b.v)}</div></div>`).join('');
+
+  const stats=[
+    {l:'Hari Hadir',v:hadirCount+' hari',s:otDays+' hari lembur'+(tkmCount?' · '+tkmCount+' TKM':'')},
+    {l:'Uang Lembur',v:rp(ot),s:rp(r)+'/jam',ra:ot>0},
+    {l:'Insentif Hari Raya',v:rp(ins),s:ray?ray+' hari':'—'},
+    {l:'Makan + Transport',v:rp(mk+tr),s:hadirCount+' hari hadir',ga:(mk+tr)>0},
+    {l:'TKM',v:rp(tkm),s:tkmCount+' shift malam',pa:tkm>0},
+    {l:'Total Potongan',v:rp(pot),s:S.pot.length+' item',ra:pot>0},
+  ];
+  document.getElementById('scards').innerHTML=stats.map(s=>`<div class="sc${s.ra?' ra':s.ga?' ga':s.pa?' pa':''}"><div class="scl">${s.l}</div><div class="scv">${s.v}</div><div class="scs">${s.s}</div></div>`).join('');
+
+  document.getElementById('atog').className='tog'+(S.att?' on':'');
+  renderLog();renderNotes();renderCal();renderSetUI();updateSim();
+}
+
+function renderLog(){
+  const logs=pLogs().sort((a,b)=>a[0].localeCompare(b[0]));
+  const r=hrRate();const{ot}=totals();
+  document.getElementById('lchip').innerHTML=ot>0?`<span class="mn" style="font-size:12px;color:var(--red);font-weight:500">${rp(ot)}</span>`:'';
+  if(!logs.length){
+    document.getElementById('ltbl').innerHTML=`<div class="emp"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Belum ada data kehadiran.<br><small style="color:var(--ink4)">Buka Kalender &gt; klik tanggal &gt; centang Hadir.</small></div>`;
+    return;
+  }
+  let rows='';
+  for(const[d,data]of logs){
+    const h=data.hours||0;const t=dType(d);
+    const otPay=h>0?calcOT(h,t,r):0;
+    const mk=mkForDay(h);const dt=new Date(d+'T00:00:00');
+    const tl=t==='raya'?'Hari Raya':t==='libur'?'Hari Libur':'Hari Kerja';
+    const cc=t==='raya'?'cr':t==='libur'?'cl':'ck';
+    const mkHtml=h>2&&h<7
+      ?`<span class="mn" style="color:var(--grn);font-weight:500">${rp(mk)}</span> <span style="font-size:9px;background:var(--grnp);color:var(--grn);padding:1px 4px;border-radius:3px">2×</span>`
+      :`<span class="mn">${rp(mk)}</span>`;
+    const tkmCell=data.tkm?`<span style="font-size:11px;background:var(--purp);color:var(--pur);padding:2px 6px;border-radius:4px;font-weight:500">✓ ${rp(S.uTKM)}</span>`:'<span style="color:var(--ink4)">—</span>';
+    const nc=data.notes?`<span style="font-size:11px;color:var(--ink3);max-width:100px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle" title="${esc(data.notes)}">&#128203; ${esc(data.notes)}</span>`:'—';
+    rows+=`<tr>
+      <td>${dt.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}</td>
+      <td><span class="chip ${cc}">${tl}</span></td>
+      <td class="mn" style="color:${h>0?'var(--red)':'var(--ink3)'}">${h>0?h+'j':'—'}</td>
+      <td class="mn" style="font-weight:500;color:var(--red)">${otPay>0?rp(otPay):'—'}</td>
+      <td>${mkHtml}</td>
+      <td class="mn">${rp(S.uTransport)}</td>
+      <td>${tkmCell}</td>
+      <td>${nc}</td>
+      <td><button class="delbtn" onclick="delDay('${d}')">✕</button></td>
+    </tr>`;
+  }
+  document.getElementById('ltbl').innerHTML=`<table class="ltbl"><thead><tr><th>Tanggal</th><th>Tipe</th><th>Lembur</th><th>Up. Lembur</th><th>Makan</th><th>Transport</th><th>TKM</th><th>Catatan</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderNotes(){
+  const all=Object.entries(S.logs).filter(([,d])=>d.notes&&d.notes.trim()).sort((a,b)=>a[0].localeCompare(b[0]));
+  document.getElementById('ncnt').textContent=all.length?all.length+' catatan':'';
+  if(!all.length){
+    document.getElementById('nbody').innerHTML=`<div class="emp"><svg viewBox="0 0 24 24"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>Belum ada catatan.<br><small style="color:var(--ink4)">Tambahkan lewat Kalender.</small></div>`;
+    return;
+  }
+  let html='<div class="notes-list">';
+  for(const[d,data]of all){
+    const dt=new Date(d+'T00:00:00');const past=dt<NOW;
+    const t=dType(d);const cc=t==='raya'?'cr':t==='libur'?'cl':'ck';
+    const tl=t==='raya'?'Hari Raya':t==='libur'?'Hari Libur':'Hari Kerja';
+    const badges=[];
+    if(data.hours>0)badges.push(`<span style="font-size:11px;color:var(--ink3)">${data.hours} jam lembur</span>`);
+    if(data.tkm)badges.push(`<span style="font-size:10px;background:var(--purp);color:var(--pur);padding:1px 5px;border-radius:3px;font-weight:500">TKM</span>`);
+    html+=`<div class="noteit${past?' npast':''}">
+      <div class="ndb"><div class="ndd">${dt.getDate()}</div><div class="ndm">${MS[dt.getMonth()]}</div></div>
+      <div class="nbdy">
+        <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="chip ${cc}" style="font-size:10px">${tl}</span>${badges.join('')}</div>
+        <div class="ntxt">${esc(data.notes)}</div>
+      </div>
+      <button class="delbtn" onclick="delNote('${d}')">✕</button>
+    </div>`;
+  }
+  document.getElementById('nbody').innerHTML=html+'</div>';
+}
+
+function renderCal(){
+  const y=S.vy,m=S.vm;
+  document.getElementById('calml').textContent=MO[m]+' '+y;
+  document.getElementById('calhd').innerHTML=DY.map(d=>`<div class="ch">${d}</div>`).join('');
+  const dim=new Date(y,m+1,0).getDate(),fd=new Date(y,m,1).getDay();
+  let html='';
+  for(let i=0;i<fd;i++)html+='<div></div>';
+  for(let day=1;day<=dim;day++){
+    const ds=df(y,m,day);const log=S.logs[ds]||{};
+    const dow=new Date(y,m,day).getDay();
+    const isHadir=!!(log.hadir||log.hours>0);
+    const hasOT=log.hours>0;
+    let cls='cc';
+    if(dow===0||dow===6)cls+=' wknd';
+    if(inPer(ds))cls+=' ip';
+    // color priority: raya > lembur > hadir > notes
+    if(log.isRaya)cls+=' hr';
+    else if(hasOT)cls+=' hh';
+    else if(isHadir)cls+=' hd';
+    else if(log.notes&&log.notes.trim())cls+=' hn';
+    if(S.sel===ds)cls+=' sel';
+    if(ds===TS)cls+=' td';
+    const badges=[];
+    if(hasOT)badges.push(`<span class="db dbh">${log.hours}j</span>`);
+    else if(isHadir)badges.push(`<span class="db dbg">✓</span>`);
+    if(log.isRaya&&!hasOT)badges.push(`<span class="db dbr">R</span>`);
+    if(log.tkm)badges.push(`<span class="db dbp">TKM</span>`);
+    if(log.notes&&log.notes.trim()&&!isHadir)badges.push(`<span class="dbn"></span>`);
+    html+=`<div class="${cls}" onclick="selDay('${ds}')"><span class="dn">${day}</span>${badges.length?`<div class="dbs">${badges.join('')}</div>`:''}</div>`;
+  }
+  document.getElementById('calgrid').innerHTML=html;
+  renderDP();
+}
+
+function renderDP(){
+  const wrap=document.getElementById('dpwrap');
+  if(!S.sel){wrap.innerHTML='';return}
+  const d=S.sel;const log=S.logs[d]||{};
+  const dt=new Date(d+'T00:00:00');const dow=dt.getDay();
+  const isHadir=!!(log.hadir||log.hours>0);
+  const isRaya=!!log.isRaya;const isTKM=!!log.tkm;
+  const r=hrRate();const h=log.hours||0;
+  const t=dType(d);
+  const otPay=h>0?calcOT(h,t,r):0;
+  const mk=isHadir?mkForDay(h):0;
+  const tr=isHadir?S.uTransport:0;
+  const tkmVal=isTKM?S.uTKM:0;
+  const tot=otPay+mk+tr+tkmVal;
+  const autoLbl=isRaya?'Hari Raya':dow===0||dow===6?'Hari Libur':'Hari Kerja';
+  const hint=isHadir?mkHint(h):'';
+
+  wrap.innerHTML=`<div class="dpan" id="dpan">
+    <div class="dphd">
+      <div><div class="dpdt">${dt.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div><div class="dptp">${autoLbl}</div></div>
+      <button class="xbtn" onclick="selDay(null)">×</button>
+    </div>
+
+    <!-- 1. ABSEN / HADIR -->
+    <div class="togrow${isHadir?' active-grn':''}">
+      <div class="togrow-info">
+        <div class="togrow-title">Hadir Hari Ini</div>
+        <div class="togrow-desc">Aktifkan untuk mencatat kehadiran &amp; tunjangan harian</div>
+      </div>
+      <button class="tog grn${isHadir?' on':''}" id="htog" onclick="togHadir('${d}')"><span></span></button>
+    </div>
+
+    <!-- 2. LEMBUR (hanya tampil jika hadir) -->
+    <div id="lembur-sec" class="lembur-section${isHadir?'':' hidden'}">
+      <div style="font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:9px">Jam Lembur <span style="font-size:11px;color:var(--ink3);font-weight:400">(isi 0 atau kosongkan jika tidak lembur)</span></div>
+      <div class="frow" style="margin-bottom:${h>0?'9px':'0'}">
+        <div class="fg">
+          <label class="fl">Jam Lembur</label>
+          <input type="number" class="fi" id="ih" min="0" max="16" step="1" value="${h||''}" placeholder="0" oninput="updDP('${d}')"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Estimasi Total Harian</label>
+          <div style="padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);background:var(--card);display:flex;align-items:center;min-height:38px">
+            <span id="pv" class="mn" style="font-size:13px;font-weight:500;color:${tot>0?'var(--red)':'var(--ink3)'}">${tot>0?rp(tot):'—'}</span>
+          </div>
+        </div>
+      </div>
+      ${isHadir&&hint?`<div class="mkbox" id="mkbox" style="${h===0?'display:none':''}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <span id="mktext">${hint} — <strong>Makan ${rp(mk)}</strong></span>
+      </div>`:'<div id="mkbox"></div>'}
+    </div>
+
+    <!-- 3. TKM -->
+    <div class="togrow${isTKM?' active-pur':''}">
+      <div class="togrow-info">
+        <div class="togrow-title">Tunjangan Kerja Malam (TKM)</div>
+        <div class="togrow-desc">${S.uTKM>0?rp(S.uTKM)+' per shift':'Set nominal TKM di Pengaturan'}</div>
+      </div>
+      <button class="tog pur${isTKM?' on':''}" id="ttog" onclick="togTKM('${d}')"><span></span></button>
+    </div>
+
+    <!-- 4. HARI RAYA -->
+    <div class="togrow">
+      <div class="togrow-info">
+        <div class="togrow-title">Tandai Hari Raya</div>
+        <div class="togrow-desc">Multiplier 3–5× + insentif flat Rp 125.000</div>
+      </div>
+      <button class="tog${isRaya?' on':''}" id="rtog" onclick="togRaya('${d}')"><span></span></button>
+    </div>
+
+    <!-- 5. CATATAN -->
+    <div class="fg" style="margin-bottom:11px;margin-top:4px">
+      <label class="fl" style="display:flex;align-items:center;gap:5px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Catatan / To-do
+      </label>
+      <textarea class="fi" id="inote" rows="3" placeholder="Contoh: Lembur karena deadline pengiriman&#10;Follow-up ke supervisor besok...">${esc(log.notes||'')}</textarea>
+    </div>
+
+    <div class="btnrow">
+      <button class="bp" onclick="saveDay('${d}')">Simpan</button>
+      <button class="bg" onclick="clearDay('${d}')">Hapus Data</button>
+    </div>
+  </div>`;
+  setTimeout(()=>{const p=document.getElementById('dpan');if(p&&window.innerWidth<=760)p.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
+}
+
+function renderSetUI(){
+  if(_skipSetUI)return; // skip when user is typing in pot inputs
+  const vals=[['sg',S.gajiPokok],['sj',S.tunJab],['sk',S.tunKel],['sp',S.ps],['se',S.pe],['smk',S.uMakan],['str',S.uTransport],['stkm',S.uTKM]];
+  vals.forEach(([id,v])=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=v??''});
+  const{s,e}=getPer();const dur=Math.round((e-s)/864e5)+1;
+  document.getElementById('pptxt').innerHTML=`Periode aktif: <strong>${s.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</strong> s/d <strong>${e.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</strong> — <strong>${dur} hari</strong>`;
+  renderPotUI();
+  const r=hrRate();
+  document.getElementById('rprev').innerHTML=`<div class="rpt">Kalkulasi Upah per Jam</div>
+    <div class="rpr"><span>Gaji Pokok</span><span>${rp(S.gajiPokok)}</span></div>
+    <div class="rpr"><span>Tunjangan Jabatan</span><span>${rp(S.tunJab)}</span></div>
+    <div class="rpr"><span>Tunjangan Keluarga</span><span>${rp(S.tunKel)}</span></div>
+    <div class="rpr tot"><span>÷ 173 = Upah/Jam</span><span>${rp(r)}</span></div>`;
+}
+
+function renderPotUI(){
+  const list=document.getElementById('potlist');if(!list)return;
+  if(!S.pot.length){list.innerHTML='';updPotTot();return}
+  list.innerHTML=S.pot.map(p=>`<div class="potrow" id="pot-${p.id}">
+    <input type="text" placeholder="Nama potongan (mis: BPJS Kes, Koperasi…)" value="${esc(p.nama)}" oninput="updPot('${p.id}','nama',this.value)"/>
+    <input type="number" placeholder="Jumlah (Rp)" value="${p.jumlah||''}" min="0" oninput="updPot('${p.id}','jumlah',this.value)"/>
+    <button class="delbtn" style="width:28px;flex-shrink:0;font-size:15px" onclick="remPot('${p.id}')">✕</button>
+  </div>`).join('');
+  updPotTot();
+}
+function updPotTot(){
+  const tot=S.pot.reduce((a,p)=>a+(Number(p.jumlah)||0),0);
+  const el=document.getElementById('pottot');const vel=document.getElementById('pottotval');
+  if(el&&vel){el.style.display=S.pot.length?'flex':'none';vel.textContent=rp(tot);}
+}
+
+/* ===== ACTIONS ===== */
+// Flag to prevent renderSetUI re-building pot inputs while typing
+let _skipSetUI=false;
+
+function go(p){
+  ['d','k','sl','s'].forEach(id=>{
+    const pg=document.getElementById('pg'+id);if(pg)pg.classList.toggle('on',id===p);
+    const n=document.getElementById('nv'+id);const b=document.getElementById('bn'+id);
+    if(n)n.className='nv'+(id===p?' on':'');if(b)b.className='bni'+(id===p?' on':'');
+  });
+  if(p==='s')renderSetUI();if(p==='k')renderCal();if(p==='sl')renderSlips();
+}
+
+function togAtt(){S.att=!S.att;save();render()}
+function prevM(){if(S.vm===0){S.vm=11;S.vy--;}else S.vm--;renderCal()}
+function nextM(){if(S.vm===11){S.vm=0;S.vy++;}else S.vm++;renderCal()}
+function selDay(d){S.sel=d;renderCal()}
+
+function togHadir(d){
+  if(!S.logs[d])S.logs[d]={};
+  S.logs[d].hadir=!S.logs[d].hadir;
+  // jika di-uncheck, bersihkan juga hours
+  if(!S.logs[d].hadir&&!S.logs[d].notes&&!S.logs[d].isRaya&&!S.logs[d].tkm)delete S.logs[d];
+  save();renderDP();renderCal();render();
+}
+
+function togTKM(d){
+  if(!S.logs[d])S.logs[d]={};
+  S.logs[d].tkm=!S.logs[d].tkm;
+  save();renderDP();renderCal();render();
+}
+
+function togRaya(d){
+  if(!S.logs[d])S.logs[d]={};
+  S.logs[d].isRaya=!S.logs[d].isRaya;
+  save();renderDP();renderCal();render();
+}
+
+function updDP(d){
+  const h=parseInt(document.getElementById('ih').value)||0;
+  const isHadir=!!(S.logs[d]&&(S.logs[d].hadir||h>0));
+  const t=S.logs[d]&&S.logs[d].isRaya?'raya':dType(d);
+  const r=hrRate();
+  const otPay=h>0?calcOT(h,t,r):0;
+  const mk=isHadir?mkForDay(h):0;
+  const tr=isHadir?S.uTransport:0;
+  const tkmVal=S.logs[d]&&S.logs[d].tkm?S.uTKM:0;
+  const tot=otPay+mk+tr+tkmVal;
+  const pv=document.getElementById('pv');
+  if(pv){pv.textContent=tot>0?rp(tot):'—';pv.style.color=tot>0?'var(--red)':'var(--ink3)';}
+  const mkbox=document.getElementById('mkbox');
+  if(mkbox){
+    if(h>0&&isHadir){
+      const hint=mkHint(h);
+      mkbox.style.display='flex';
+      const mt=document.getElementById('mktext');
+      if(mt)mt.innerHTML=`${hint} — <strong>Makan ${rp(mk)}</strong>`;
+    }else{mkbox.style.display='none';}
+  }
+}
+
+function saveDay(d){
+  const lemburSec=document.getElementById('lembur-sec');
+  const h=lemburSec&&!lemburSec.classList.contains('hidden')?(parseInt(document.getElementById('ih').value)||0):0;
+  const notes=document.getElementById('inote').value.trim();
+  if(!S.logs[d])S.logs[d]={};
+  if(h>0){S.logs[d].hadir=true;S.logs[d].hours=h;}else{S.logs[d].hours=0;}
+  S.logs[d].notes=notes;
+  // cleanup empty entry
+  const l=S.logs[d];
+  if(!l.hadir&&!(l.hours>0)&&!l.notes&&!l.isRaya&&!l.tkm)delete S.logs[d];
+  S.sel=null;save();render();
+}
+
+function clearDay(d){
+  delete S.logs[d];
+  S.sel=null;save();render();
+}
+
+function delDay(d){delete S.logs[d];save();render()}
+function delNote(d){if(S.logs[d]){delete S.logs[d].notes;if(!S.logs[d].hadir&&!(S.logs[d].hours>0)&&!S.logs[d].isRaya&&!S.logs[d].tkm)delete S.logs[d];}save();render()}
+
+function applyS(){
+  S.gajiPokok=parseInt(document.getElementById('sg').value)||0;
+  S.tunJab=parseInt(document.getElementById('sj').value)||0;
+  S.tunKel=parseInt(document.getElementById('sk').value)||0;
+  const ps=document.getElementById('sp').value;const pe=document.getElementById('se').value;
+  if(ps)S.ps=ps;if(pe)S.pe=pe;
+  S.uMakan=parseInt(document.getElementById('smk').value)||15000;
+  S.uTransport=parseInt(document.getElementById('str').value)||15000;
+  S.uTKM=parseInt(document.getElementById('stkm').value)||0;
+  save();render();
+}
+
+function addPot(){S.pot.push({id:uid(),nama:'',jumlah:0});save();renderPotUI()}
+function updPot(id,f,v){
+  const p=S.pot.find(p=>p.id===id);
+  if(p){p[f]=f==='jumlah'?Number(v)||0:v;}
+  save();
+  updPotTot();
+  // Refresh THP display without re-rendering the settings form inputs
+  _skipSetUI=true;render();_skipSetUI=false;
+}
+function remPot(id){S.pot=S.pot.filter(p=>p.id!==id);save();renderPotUI();render()}
+
+/* ===== SLIP GAJI ===== */
+function savePeriod(){
+  const{ot,ins,ray,th,mk,tr,tkm,pot,hadirCount,tkmCount,otDays}=totals();
+  const{s,e}=getPer();
+  const att=S.att?135000:0;
+  const thp=S.gajiPokok+S.tunJab+S.tunKel+att+ot+ins+mk+tr+tkm-pot;
+  const r=hrRate();
+  // Cek apakah periode ini sudah pernah disimpan
+  const key=S.ps+'_'+S.pe;
+  const existing=S.savedPeriods.findIndex(p=>p.key===key);
+  const snap={
+    id:uid(), key,
+    savedAt:new Date().toISOString(),
+    label:s.toLocaleDateString('id-ID',{day:'numeric',month:'long'})+' – '+e.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),
+    ps:S.ps, pe:S.pe,
+    gajiPokok:S.gajiPokok, tunJab:S.tunJab, tunKel:S.tunKel,
+    att, ot, ins, ray, th, mk, tr, tkm,
+    pot:JSON.parse(JSON.stringify(S.pot)),
+    thp, hadirCount, otDays, tkmCount, rate:r,
+    uMakan:S.uMakan, uTransport:S.uTransport, uTKM:S.uTKM
+  };
+  if(existing>=0)S.savedPeriods[existing]=snap;
+  else S.savedPeriods.unshift(snap);
+  save();renderSlips();
+  alert('Slip periode '+snap.label+' berhasil disimpan!');
+}
+
+function renderSlips(){
+  const sl=document.getElementById('slip-list');const sc=document.getElementById('slip-count');
+  if(!sl)return;
+  if(sc)sc.textContent=S.savedPeriods.length?S.savedPeriods.length+' slip':'';
+  if(!S.savedPeriods.length){
+    sl.innerHTML=`<div class="emp"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Belum ada slip tersimpan.<br><small style="color:var(--ink4)">Klik "Simpan Periode" untuk menyimpan data saat ini.</small></div>`;
+    renderChart();
+    return;
+  }
+  sl.innerHTML=S.savedPeriods.map(p=>`
+    <div class="slip-item" onclick="viewSlip('${p.id}')">
+      <div class="slip-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="slip-info">
+        <div class="slip-per">${p.label}</div>
+        <div class="slip-thp">${rp(p.thp)}</div>
+        <div class="slip-meta">${p.hadirCount} hari hadir · ${p.th} jam lembur · Disimpan ${new Date(p.savedAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="slip-arrow">›</span>
+        <button class="delbtn" onclick="event.stopPropagation();delSlip('${p.id}')" title="Hapus slip">✕</button>
+      </div>
+    </div>`).join('');
+  renderChart();
+}
+
+function viewSlip(id){
+  const p=S.savedPeriods.find(x=>x.id===id);if(!p)return;
+  _currentSlip=p; // Store for Excel export
+  const potTotal=p.pot.reduce((a,x)=>a+(Number(x.jumlah)||0),0);
+  document.getElementById('modal-title').textContent='Slip Gaji — '+p.label;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="slip-detail">
+      <div class="slip-detail-hd">
+        <div class="slip-detail-co">SHARP Electronics Indonesia</div>
+        <div class="slip-detail-title">Slip Gaji — Washing Machine Division</div>
+        <div class="slip-detail-per">${p.label}</div>
+      </div>
+      <div class="slip-section">
+        <div class="slip-sec-title">Gaji Pokok &amp; Tunjangan</div>
+        <div class="slip-row"><span class="sr-lbl">Gaji Pokok</span><span class="sr-val">${rp(p.gajiPokok)}</span></div>
+        <div class="slip-row"><span class="sr-lbl">Tunjangan Jabatan</span><span class="sr-val">${rp(p.tunJab)}</span></div>
+        <div class="slip-row"><span class="sr-lbl">Tunjangan Keluarga</span><span class="sr-val">${rp(p.tunKel)}</span></div>
+        ${p.att?`<div class="slip-row"><span class="sr-lbl">Tunjangan Kehadiran</span><span class="sr-val">${rp(p.att)}</span></div>`:''}
+      </div>
+      <div class="slip-section">
+        <div class="slip-sec-title">Lembur &amp; Insentif</div>
+        <div class="slip-row"><span class="sr-lbl">Uang Lembur (${p.th} jam · ${p.otDays} hari)</span><span class="sr-val pos">${rp(p.ot)}</span></div>
+        ${p.ins?`<div class="slip-row"><span class="sr-lbl">Insentif Hari Raya (${p.ray} hari)</span><span class="sr-val pos">${rp(p.ins)}</span></div>`:''}
+      </div>
+      <div class="slip-section">
+        <div class="slip-sec-title">Tunjangan Harian (${p.hadirCount} hari hadir)</div>
+        <div class="slip-row"><span class="sr-lbl">Uang Makan (@ ${rp(p.uMakan)})</span><span class="sr-val pos">${rp(p.mk)}</span></div>
+        <div class="slip-row"><span class="sr-lbl">Tunjangan Transport (@ ${rp(p.uTransport)})</span><span class="sr-val pos">${rp(p.tr)}</span></div>
+        ${p.tkm?`<div class="slip-row"><span class="sr-lbl">TKM — ${p.tkmCount} shift (@ ${rp(p.uTKM)})</span><span class="sr-val pos">${rp(p.tkm)}</span></div>`:''}
+      </div>
+      ${p.pot.length?`<div class="slip-section">
+        <div class="slip-sec-title">Potongan</div>
+        ${p.pot.map(x=>`<div class="slip-row neg"><span class="sr-lbl">${esc(x.nama)||'Potongan'}</span><span class="sr-val">− ${rp(x.jumlah)}</span></div>`).join('')}
+      </div>`:''}
+      <div class="slip-total-row"><span class="sr-lbl">Take Home Pay</span><span class="sr-val">${rp(p.thp)}</span></div>
+      <div style="text-align:center;margin-top:14px;font-size:11px;color:var(--ink3)">Upah/jam: ${rp(p.rate)} · Dibuat ${new Date(p.savedAt).toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</div>
+    </div>`;
+  document.getElementById('slip-modal').style.display='flex';
+}
+
+let _printTarget=null;
+function printSlip(){window.print()}
+function closeSlipModal(e){if(!e||e.target===document.getElementById('slip-modal'))document.getElementById('slip-modal').style.display='none'}
+function delSlip(id){if(confirm('Hapus slip ini?')){S.savedPeriods=S.savedPeriods.filter(p=>p.id!==id);save();renderSlips();}}
+
+/* ===== TREND CHART ===== */
+let trendChart=null;
+function renderChart(){
+  const card=document.getElementById('chart-card');
+  if(S.savedPeriods.length<2){
+    if(card)card.style.display='none';
+    return;
+  }
+  if(card)card.style.display='block';
+  
+  const sorted=[...S.savedPeriods].sort((a,b)=>new Date(a.savedAt)-new Date(b.savedAt));
+  const labels=sorted.map(p=>p.label.split(' – ')[0].substring(0,10));
+  const jamData=sorted.map(p=>p.th);
+  const thpData=sorted.map(p=>p.thp);
+  
+  const ctx=document.getElementById('trend-chart');
+  if(!ctx)return;
+  
+  if(trendChart)trendChart.destroy();
+  
+  trendChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          label:'Jam Lembur',
+          data:jamData,
+          borderColor:'rgb(37,99,235)',
+          backgroundColor:'rgba(37,99,235,.1)',
+          yAxisID:'y',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Take Home Pay',
+          data:thpData,
+          borderColor:'rgb(200,0,30)',
+          backgroundColor:'rgba(200,0,30,.1)',
+          yAxisID:'y1',
+          tension:.3,
+          fill:true
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:{duration:400},
+      resizeDelay:100,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'top',labels:{font:{family:"'DM Sans',sans-serif",size:11},padding:12}},
+        tooltip:{
+          backgroundColor:'rgba(0,0,0,.8)',
+          padding:10,
+          titleFont:{family:"'DM Sans',sans-serif",size:12},
+          bodyFont:{family:"'DM Mono',monospace",size:11},
+          callbacks:{
+            label:function(ctx){
+              let lbl=ctx.dataset.label||'';
+              if(lbl)lbl+=': ';
+              if(ctx.parsed.y!==null){
+                lbl+=ctx.datasetIndex===0?ctx.parsed.y+' jam':'Rp '+ctx.parsed.y.toLocaleString('id-ID');
+              }
+              return lbl;
+            }
+          }
+        }
+      },
+      scales:{
+        y:{
+          type:'linear',
+          display:true,
+          position:'left',
+          title:{display:true,text:'Jam Lembur',font:{family:"'DM Sans',sans-serif",size:11}},
+          grid:{color:'rgba(0,0,0,.05)'}
+        },
+        y1:{
+          type:'linear',
+          display:true,
+          position:'right',
+          title:{display:true,text:'THP (Rp)',font:{family:"'DM Sans',sans-serif",size:11}},
+          grid:{drawOnChartArea:false},
+          ticks:{callback:function(val){return 'Rp '+val.toLocaleString('id-ID')}}
+        }
+      }
+    }
+  });
+}
+
+/* ===== EXCEL EXPORT ===== */
+let _currentSlip=null;
+function exportSlipExcel(){
+  if(!_currentSlip)return;
+  const p=_currentSlip;
+  
+  const wb=XLSX.utils.book_new();
+  const wsData=[
+    ['SHARP Electronics Indonesia'],
+    ['Slip Gaji — Washing Machine Division'],
+    [p.label],
+    [''],
+    ['GAJI POKOK & TUNJANGAN',''],
+    ['Gaji Pokok',p.gajiPokok],
+    ['Tunjangan Jabatan',p.tunJab],
+    ['Tunjangan Keluarga',p.tunKel],
+  ];
+  
+  if(p.att)wsData.push(['Tunjangan Kehadiran',p.att]);
+  
+  wsData.push(['']);
+  wsData.push(['LEMBUR & INSENTIF','']);
+  wsData.push([`Uang Lembur (${p.th} jam · ${p.otDays} hari)`,p.ot]);
+  if(p.ins)wsData.push([`Insentif Hari Raya (${p.ray} hari)`,p.ins]);
+  
+  wsData.push(['']);
+  wsData.push([`TUNJANGAN HARIAN (${p.hadirCount} hari hadir)`,''  ]);
+  wsData.push([`Uang Makan (@ Rp ${p.uMakan.toLocaleString('id-ID')})`,p.mk]);
+  wsData.push([`Tunjangan Transport (@ Rp ${p.uTransport.toLocaleString('id-ID')})`,p.tr]);
+  if(p.tkm)wsData.push([`TKM — ${p.tkmCount} shift (@ Rp ${p.uTKM.toLocaleString('id-ID')})`,p.tkm]);
+  
+  if(p.pot.length){
+    wsData.push(['']);
+    wsData.push(['POTONGAN','']);
+    p.pot.forEach(x=>wsData.push([x.nama||'Potongan',-x.jumlah]));
+  }
+  
+  wsData.push(['']);
+  wsData.push(['TAKE HOME PAY',p.thp]);
+  wsData.push(['']);
+  wsData.push([`Upah/jam: Rp ${p.rate.toLocaleString('id-ID')}`]);
+  wsData.push([`Dibuat: ${new Date(p.savedAt).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`]);
+  
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+  
+  // Format columns
+  ws['!cols']=[{wch:40},{wch:15}];
+  
+  // Merge title cells
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:1}},
+    {s:{r:1,c:0},e:{r:1,c:1}},
+    {s:{r:2,c:0},e:{r:2,c:1}}
+  ];
+  
+  XLSX.utils.book_append_sheet(wb,ws,'Slip Gaji');
+  
+  const filename=`slip-gaji-${p.label.replace(/\s/g,'-')}.xlsx`;
+  XLSX.writeFile(wb,filename);
+}
+
+/* ===== DARK MODE ===== */
+function toggleDark(){S.darkMode=!S.darkMode;save();applyTheme()}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',S.darkMode?'dark':'light');
+  const tog=document.getElementById('dark-tog');if(tog)tog.className='tog'+(S.darkMode?' on':'');
+}
+
+/* ===== PERIOD REMINDER ===== */
+function checkPeriodReminder(){
+  const key=S.ps+'_'+S.pe;
+  if(S.dismissedPeriods.includes(key))return; // already dismissed
+  const endDate=new Date(S.pe+'T00:00:00');
+  const today=new Date();today.setHours(0,0,0,0);
+  if(today>endDate&&!S.savedPeriods.find(p=>p.key===key)){
+    document.getElementById('reminder-banner').style.display='flex';
+  }
+}
+function dismissReminder(){
+  const key=S.ps+'_'+S.pe;
+  if(!S.dismissedPeriods.includes(key))S.dismissedPeriods.push(key);
+  save();
+  document.getElementById('reminder-banner').style.display='none';
+}
+function saveFromReminder(){
+  savePeriod();
+  document.getElementById('reminder-banner').style.display='none';
+}
+
+/* ===== SIMULASI LEMBUR ===== */
+function updateSim(){
+  const addJam=parseInt(document.getElementById('sim-jam').value)||0;
+  const type=document.getElementById('sim-type').value;
+  const rate=hrRate();
+  const addOT=addJam>0?calcOT(addJam,type,rate):0;
+  const{ot,ins,ray,th,mk,tr,tkm,pot,hadirCount}=totals();
+  const att=S.att?135000:0;
+  const currentTHP=S.gajiPokok+S.tunJab+S.tunKel+att+ot+ins+mk+tr+tkm-pot;
+  const newTHP=currentTHP+addOT;
+  document.getElementById('sim-add').textContent=rp(addOT);
+  document.getElementById('sim-new').textContent=rp(newTHP);
+}
+
+/* ===== COLLAPSIBLE SECTIONS ===== */
+function toggleCollapse(id){
+  const el=document.getElementById(id);
+  const icon=document.getElementById(id.replace('-section','-icon'));
+  if(!el)return;
+  const isCollapsed=S.collapsed[id];
+  S.collapsed[id]=!isCollapsed;
+  save();
+  if(S.collapsed[id]){
+    el.classList.add('collapsed');
+    if(icon)icon.classList.add('collapsed');
+  }else{
+    el.classList.remove('collapsed');
+    if(icon)icon.classList.remove('collapsed');
+  }
+}
+function applyCollapsedStates(){
+  Object.keys(S.collapsed).forEach(id=>{
+    if(S.collapsed[id]){
+      const el=document.getElementById(id);
+      const icon=document.getElementById(id.replace('-section','-icon'));
+      if(el)el.classList.add('collapsed');
+      if(icon)icon.classList.add('collapsed');
+    }
+  });
+}
+
+/* ===== BACKUP/RESTORE ===== */
+function exportData(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='overtime-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert('Data berhasil di-export sebagai file JSON!');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(confirm('Import data ini akan MENIMPA semua data yang ada sekarang. Lanjutkan?')){
+        Object.assign(S,imported);
+        if(!S.savedPeriods)S.savedPeriods=[];
+        if(!S.dismissedPeriods)S.dismissedPeriods=[];
+        save();applyTheme();render();
+        alert('Data berhasil di-import! Halaman akan di-refresh.');
+        location.reload();
+      }
+    }catch(err){alert('File JSON tidak valid: '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value=''; // reset input
+}
+
+/* ===== PWA ===== */
+let dInst=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dInst=e;document.getElementById('ibtn').style.display='flex';});
+window.addEventListener('appinstalled',()=>{document.getElementById('ibtn').style.display='none';dInst=null;});
+function installApp(){if(dInst){dInst.prompt();dInst.userChoice.then(()=>{dInst=null;});}}
+if('serviceWorker' in navigator&&location.protocol!=='file:'){
+  const SW=`const C='ot5';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll([location.href]).catch(()=>{})).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res&&res.status===200&&res.type==='basic'){caches.open(C).then(c=>c.put(e.request,res.clone()));}return res;}))));`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([SW],{type:'text/javascript'}))).catch(()=>{});
+}
+load();applyTheme();render();checkPeriodReminder();updateSim();applyCollapsedStates();
+</script>
+</body>
+</html>
