@@ -54,7 +54,7 @@
 [data-theme="dark"] .reminder{background:linear-gradient(135deg,#3D2A0F,#4D3A1F);border-bottom-color:#92400E}
 [data-theme="dark"] .reminder-txt{color:#FDE68A}
 /* REMINDER BANNER */
-.reminder{grid-column:1/-1;position:sticky;top:54px;z-index:90;background:linear-gradient(135deg,#FFF7E6,#FED7AA);border-bottom:1px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideDown .3s ease}
+.reminder{position:sticky;top:54px;z-index:90;background:linear-gradient(135deg,#FFF7E6,#FED7AA);border-bottom:1px solid #F59E0B;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideDown .3s ease}
 @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
 [data-theme="dark"] .reminder{background:linear-gradient(135deg,#2D1F0A,#3D2A0F);border-bottom-color:#92400E}
 .reminder-txt{font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px}
@@ -559,7 +559,9 @@ textarea.fi{font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;line
       <div style="font-size:11px;color:var(--ink3)">Perbandingan antar periode</div>
     </div>
     <div class="collapsible-content" id="chart-section" style="max-height:2000px">
-      <canvas id="trend-chart" style="max-height:320px"></canvas>
+      <div style="position:relative;height:280px;width:100%">
+        <canvas id="trend-chart"></canvas>
+      </div>
     </div>
   </div></div>
   
@@ -1221,7 +1223,9 @@ function renderChart(){
     },
     options:{
       responsive:true,
-      maintainAspectRatio:true,
+      maintainAspectRatio:false,
+      animation:{duration:400},
+      resizeDelay:100,
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{position:'top',labels:{font:{family:"'DM Sans',sans-serif",size:11},padding:12}},
